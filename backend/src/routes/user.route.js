@@ -5,11 +5,14 @@ import {
     logout, 
     updateUserProfilePicture,
     updateUserFullName,
-    updateUserPassword, 
-} from '../controllers/auth.controller.js';
+    updateUserPassword,
+    getAllUsers 
+} from '../controllers/user.controller.js';
 import { authJWT } from '../middlewares/auth.middleware.js';
 
 const router=express.Router();
+
+///user
 
 router.post("/signup",signup);
 
@@ -22,5 +25,9 @@ router.put("/updateUser/profilePicture",authJWT,updateUserProfilePicture);
 router.put("/updateUser/fullName",authJWT,updateUserFullName);
 
 router.put("/updateUser/password",authJWT,updateUserPassword);
+
+//message
+
+router.get("/getAllUsers",authJWT,getAllUsers);
 
 export default router;

@@ -119,7 +119,7 @@ export const updateUserProfilePicture = async(req , res)=>{
         message:"internal server error"
     })
   }
-}
+};
 
 export const updateUserFullName = async(req,res)=>{
     const { newFullName } = req.body;
@@ -140,7 +140,7 @@ export const updateUserFullName = async(req,res)=>{
             message:"internal server error"
         })
     }
-}
+};
 
 export const updateUserPassword = async(req,res)=>{
    const {oldPassword,newPassword} = req.body;
@@ -176,4 +176,20 @@ export const updateUserPassword = async(req,res)=>{
   })
   }
 
-}
+};
+
+export const getAllUsers = async(req,res)=>{
+  const userId = req.user._id;
+
+  try{
+      const allUsers = await User.find({ _id:{$ne:userId} });
+
+      res.status(200).json(allUsers);
+  }
+  catch(err){
+     console.log("unable to fetch all users",err);
+     res.status(500).json({
+     message:"interal server error" 
+    })
+  }
+};
