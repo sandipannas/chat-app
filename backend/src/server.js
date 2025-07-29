@@ -13,6 +13,6 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes)
 
 app.listen(process.env.PORT,()=>{
-    console.log("the serve is running");
+    console.log(`the server is running on ${process.env.PORT}`);
     connectDB();
 })
