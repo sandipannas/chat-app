@@ -6,7 +6,8 @@ import {
     updateUserProfilePicture,
     updateUserFullName,
     updateUserPassword,
-    getAllUsers 
+    getAllUsers,
+    getCurrentUser 
 } from '../controllers/user.controller.js';
 import { authJWT } from '../middlewares/auth.middleware.js';
 
@@ -26,6 +27,7 @@ router.put("/updateUser/fullName",authJWT,updateUserFullName);
 
 router.put("/updateUser/password",authJWT,updateUserPassword);
 
+router.get("/me", authJWT, getCurrentUser);
 //message
 
 router.get("/getAllUsers",authJWT,getAllUsers);

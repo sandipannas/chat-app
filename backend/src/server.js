@@ -3,7 +3,8 @@ import express from "express";
 import userRoutes from "./routes/user.route.js"
 import messageRoutes from "./routes/message.route.js"
 import {connectDB} from "./config/db.js"
-import cookieParser from "cookie-parser";
+import cookieParser from "cookie-parser"
+import cors from "cors";
 
 dotenv.config()
 
@@ -11,10 +12,20 @@ const app=express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/user",userRoutes)
+
+// CORS middleware
+app.use(cors({
+  origin: 'http://localhost:5173',  // frontend URL
+  credentials: true                // allow cookies to be sent
+}));
+
+app.get("/",(req,res)=>{
+    res.send("API is running successfully");
+})
+app.use("/api/auth",userRoutes)
 app.use("/api/message",messageRoutes)
 
 app.listen(process.env.PORT,()=>{
-    console.log("the serve is running");
+    console.log(`the server is running on ${process.env.PORT}`);
     connectDB();
 })
