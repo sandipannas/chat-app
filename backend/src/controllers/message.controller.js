@@ -1,4 +1,5 @@
 import Message from "../models/massage.model.js"
+import cloudinary from "../config/cloudinary.js";
 
 export const getMessages = async(req,res)=>{
   const senderId = req.body.senderId;
@@ -37,12 +38,17 @@ export const sendMessage = async(req,res)=>{
             })
         }
 
+        
+        const uploadResponse = await cloudinary.uploader.upload(image);
+        const uploadUrl = uploadResponse.secure_url;
+        
         const response = await Message.create({
             senderId,
             receiverId,
             text,
-            image
+            image : uploadUrl
         })
+
 
         if(response){
             return res.status(200).json(response);
