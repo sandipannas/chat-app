@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import UserListSidebar from '../components/user/UserListSidebar';
 import ChatWindow from '../components/chat/ChatWindow';
 import ProfileSettingsModal from '../components/profile/ProfileSettingsModal';
@@ -7,38 +8,28 @@ import { MessageCircle } from 'lucide-react';
 
 export default function ChatPage({ currentUser, onUpdateProfile }) {
   const { logout } = useAuth();
+  const { getAllUsers } = useAuth();
   const [activeUser, setActiveUser] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
 
-  // Mock users data
-  const users = [
-    {
-      id: '1',
-      name: 'Alice Johnson',
-      avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100',
-      online: true,
-    },
-    {
-      id: '2',
-      name: 'Bob Smith',
-      avatar: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100',
-      online: false,
-      lastSeen: '2 hours ago',
-    },
-    {
-      id: '3',
-      name: 'Carol Wilson',
-      avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100',
-      online: true,
-    },
-    {
-      id: '4',
-      name: 'David Brown',
-      online: false,
-      lastSeen: '1 day ago',
-    },
-  ];
+  // Fetch users from backend
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const fetchedUsers = await getAllUsers();
+        setUsers(fetchedUsers);
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, [getAllUsers]);
 
   // Mock messages data
   const mockMessages = {

@@ -1,6 +1,29 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+import { useToast } from './ToastContext';
 
 const AuthContext = createContext(undefined);
+
+// Configure axios defaults
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+axios.defaults.baseURL = API_BASE_URL;
+axios.defaults.withCredentials = true; // Important for cookie-based auth
+
+// Add response interceptor to handle token expiration
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('chatapp_user');
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login' && currentPath !== '/signup') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 
 export function useAuth() {
   const context = useContext(AuthContext);
@@ -13,70 +36,169 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const { showToast } = useToast();
 
   useEffect(() => {
-    // Check for existing user in localStorage
-    const savedUser = localStorage.getItem('chatapp_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    // Check for existing user on app start
+    const initializeAuth = async () => {
+      try {
+        // Try to get current user from backend (validates JWT cookie)
+        const response = await axios.get('/auth/me');
+        const userData = {
+          id: response.data.id,
+          name: response.data.fullName,
+          email: response.data.email,
+          avatar: response.data.profilePicture
+        };
+        setUser(userData);
+        localStorage.setItem('chatapp_user', JSON.stringify(userData));
+      } catch (error) {
+        // No valid session, clear any stored data
+        localStorage.removeItem('chatapp_user');
+      }
+      setInitialLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email, password) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockUser = {
-        id: '123',
-        name: 'John Doe',
+      const response = await axios.post('/auth/login', {
         email,
-        avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100',
-        online: true,
+        password
+      });
+
+      const userData = {
+        id: response.data.id,
+        name: response.data.fullName,
+        email: response.data.email,
+        avatar: response.data.profilePicture
       };
       
-      setUser(mockUser);
-      localStorage.setItem('chatapp_user', JSON.stringify(mockUser));
+      setUser(userData);
+      localStorage.setItem('chatapp_user', JSON.stringify(userData));
+      showToast('Login successful!', 'success');
+      
+      return { success: true };
     } catch (error) {
-      throw new Error('Login failed');
+      const message = error.response?.data?.massage || error.response?.data?.message || 'Login failed. Please try again.';
+      showToast(message, 'error');
+      throw new Error(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const signup = async (name, email, password) => {
+  const signup = async (fullName, email, password) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockUser = {
-        id: Date.now().toString(),
-        name,
+      const response = await axios.post('/auth/signup', {
+        fullName,
         email,
-        online: true,
+        password
+      });
+
+      const userData = {
+        id: response.data.id,
+        name: response.data.fullName,
+        email: response.data.email,
+        avatar: response.data.profilePicture
       };
       
-      setUser(mockUser);
-      localStorage.setItem('chatapp_user', JSON.stringify(mockUser));
+      setUser(userData);
+      localStorage.setItem('chatapp_user', JSON.stringify(userData));
+      showToast('Account created successfully!', 'success');
+      
+      return { success: true };
     } catch (error) {
-      throw new Error('Signup failed');
+      const message = error.response?.data?.massage || error.response?.data?.message || 'Signup failed. Please try again.';
+      showToast(message, 'error');
+      throw new Error(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('chatapp_user');
+  const logout = async () => {
+    try {
+      await axios.post('/auth/logout');
+      showToast('Logged out successfully', 'success');
+    } catch (error) {
+      console.error('Logout API call failed:', error);
+    } finally {
+      // Clear local storage and state regardless of API call result
+      setUser(null);
+      localStorage.removeItem('chatapp_user');
+    }
   };
 
-  const updateProfile = (updates) => {
-    if (user) {
-      const updatedUser = { ...user, ...updates };
-      setUser(updatedUser);
-      localStorage.setItem('chatapp_user', JSON.stringify(updatedUser));
+  const updateProfile = async (updates) => {
+    if (!user) return;
+
+    try {
+      let updatedUser;
+
+      // Handle different types of profile updates based on your backend endpoints
+      if (updates.name && updates.name !== user.name) {
+        const response = await axios.put('/auth/updateUser/fullName', {
+          newFullName: updates.name
+        });
+        updatedUser = response.data;
+      }
+
+      if (updates.avatar && updates.avatar !== user.avatar) {
+        const response = await axios.put('/auth/updateUser/profilePicture', {
+          newProfilePicture: updates.avatar
+        });
+        updatedUser = response.data;
+      }
+
+      if (updates.password) {
+        const response = await axios.put('/auth/updateUser/password', {
+          oldPassword: updates.oldPassword,
+          newPassword: updates.password
+        });
+        updatedUser = response.data;
+      }
+
+      if (updatedUser) {
+        const userData = {
+          id: updatedUser._id,
+          name: updatedUser.fullName,
+          email: updatedUser.email,
+          avatar: updatedUser.profilePicture
+        };
+        
+        setUser(userData);
+        localStorage.setItem('chatapp_user', JSON.stringify(userData));
+        showToast('Profile updated successfully!', 'success');
+      }
+      
+      return { success: true };
+    } catch (error) {
+      const message = error.response?.data?.message || error.response?.data?.massage || 'Profile update failed. Please try again.';
+      showToast(message, 'error');
+      throw new Error(message);
+    }
+  };
+
+  const getAllUsers = async () => {
+    try {
+      const response = await axios.get('/auth/getAllUsers');
+      return response.data.map(user => ({
+        id: user._id,
+        name: user.fullName,
+        email: user.email,
+        avatar: user.profilePicture,
+        online: false // You'll need to implement online status separately
+      }));
+    } catch (error) {
+      const message = error.response?.data?.message || 'Failed to fetch users';
+      showToast(message, 'error');
+      throw new Error(message);
     }
   };
 
@@ -86,7 +208,9 @@ export function AuthProvider({ children }) {
     signup,
     logout,
     updateProfile,
+    getAllUsers,
     loading,
+    initialLoading,
   };
 
   return (

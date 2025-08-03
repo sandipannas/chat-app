@@ -16,7 +16,7 @@ export const signup = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user) {
-      return res.json({ 
+      return res.status(400).json({ 
         msg: "email is already resistered try to login" 
       });
     }
@@ -96,6 +96,22 @@ export const logout = (req, res) => {
     res.status(500).json({ massage:"Internal server error" });
   }
 };
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    const user = req.user;
+    res.status(200).json({
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      profilePicture: user.profilePicture,
+    });
+  } catch (err) {
+    console.error("Error in getCurrentUser:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 export const updateUserProfilePicture = async(req , res)=>{
   const {newProfilePicture}=req.body;

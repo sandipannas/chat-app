@@ -12,7 +12,10 @@ export default function SignupForm({ onSignup, loading = false }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      return;
+    }
+    if (password.length < 6) {
+      alert('Password must be at least 6 characters long');
       return;
     }
     onSignup(name, email, password);

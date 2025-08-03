@@ -7,7 +7,18 @@ import SignupPage from './pages/SignupPage';
 import ChatPage from './pages/ChatPage';
 
 function AppRoutes() {
-  const { user, login, signup, updateProfile, loading } = useAuth();
+  const { user, login, signup, updateProfile, loading, initialLoading } = useAuth();
+
+  if (initialLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (user) {
     return (
@@ -39,13 +50,13 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <ToastProvider>
+      <ToastProvider>
+        <AuthProvider>
           <div className="h-screen overflow-hidden">
             <AppRoutes />
           </div>
-        </ToastProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </ToastProvider>
     </Router>
   );
 }
