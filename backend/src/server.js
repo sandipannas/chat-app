@@ -11,7 +11,7 @@ dotenv.config()
 
 app.use(express.json());
 app.use(cookieParser());
- 
+
 
 // CORS middleware
 app.use(cors({
