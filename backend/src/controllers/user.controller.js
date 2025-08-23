@@ -8,16 +8,16 @@ export const signup = async (req, res) => {
   try {
     //checking the fields are not null
     if (!fullName || !email || !password) {
-      return res.status(400).json({ 
-        massage: "all fields are required" 
+      return res.status(200).json({ 
+        message: "All fields are Required" 
       });
     }
     //checking if the a user with a same email is already present 
     const user = await User.findOne({ email });
 
     if (user) {
-      return res.status(400).json({ 
-        msg: "email is already resistered try to login" 
+      return res.status(200).json({ 
+        message: "Email is already resistered , try to Log In" 
       });
     }
     //hashing the user given password
@@ -39,17 +39,21 @@ export const signup = async (req, res) => {
             id:newUser._id,
             fullName:newUser.fullName,
             email:newUser.email,
-            profilePicture: newUser.profilePicture
+            profilePicture: newUser.profilePicture,
+            message:"Account Created Successfully"
         });
     }
     else{
-        return res.status(400).json({
-            massage:"problem occured during User creation"
+        return res.status(500).json({
+            message:"problem occured during Account creation"
         })
     }
 
   } catch(err) {
     console.log("error occured",err);
+    return res.status(500).json({
+      message:"problem occured during Account creation"
+  })
   }
 };
 
@@ -58,25 +62,26 @@ export const login = async (req, res) => {
   try{
     const user = await User.findOne({email});
     if(!user){
-        return res.status(400).json({
-            massage:"invalid credentials"
+        return res.status(200).json({
+            massage:"Invalid Credentials"
         })
     }
 
     const passwordCorrect = await bcrypt.compare(password,user.password);
     
     if(!passwordCorrect){
-        return res.status(400).json({
-            massage:"invalid credentials"
+        return res.status(200).json({
+            message:"Invalid Credentials"
         })
     }
 
     generateJWT(user._id,res);
-    res.status(200).json({
+    res.status(201).json({
         id:user._id,
         fullName:user.fullName,
         email:user.email,
-        profilePicture:user.profilePicture
+        profilePicture:user.profilePicture,
+        message:"Successfully Loged In"
     })
   }
   catch(err){
@@ -101,7 +106,7 @@ export const getCurrentUser = async (req, res) => {
   try {
     const user = req.user;
     res.status(200).json({
-      id: user._id,
+      _id: user._id,
       fullName: user.fullName,
       email: user.email,
       profilePicture: user.profilePicture,
@@ -142,13 +147,13 @@ export const updateUserFullName = async(req,res)=>{
     const userId=req.user._id;
     try{
         if(!newFullName){
-            return res.status(400).json({
+            return res.status(200).json({
                 message:"new name is required"
             })
         }
     const updatedUser = await User.findByIdAndUpdate(userId,{fullName:newFullName},{new:true}).select('-password');
 
-    res.status(200).json(updatedUser);
+    res.status(201).json(updatedUser);
     }
     catch(err){
         console.log("problem occured while updating name",err);
@@ -165,7 +170,7 @@ export const updateUserPassword = async(req,res)=>{
    
   try{
     if(!oldPassword || !newPassword){
-        return res.status(500).json({
+        return res.status(200).json({
             message:'ivalid credentials'
         })
     }
@@ -173,7 +178,7 @@ export const updateUserPassword = async(req,res)=>{
     const passwordCorrect= await bcrypt.compare(oldPassword,password);
 
     if(!passwordCorrect){
-        return res.status(400).json({
+        return res.status(200).json({
             message:"incorrect password"
         })
     }
@@ -183,7 +188,7 @@ export const updateUserPassword = async(req,res)=>{
     
     const updatedUser = await User.findByIdAndUpdate(userId,{password:hashedPassword},{new:true}).select("-password");
 
-    res.status(200).json(updatedUser);
+    res.status(201).json(updatedUser);
   }
   catch(err){
     console.log("problem occured while updating the password",err);
@@ -200,11 +205,11 @@ export const getAllUsers = async(req,res)=>{
   try{
       const allUsers = await User.find({ _id:{$ne:userId} });
 
-      res.status(200).json(allUsers);
+      return res.status(200).json(allUsers);
   }
   catch(err){
      console.log("unable to fetch all users",err);
-     res.status(500).json({
+    return res.status(500).json({
      message:"interal server error" 
     })
   }
