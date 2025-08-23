@@ -1,23 +1,26 @@
 import Message from "../models/massage.model.js"
 import cloudinary from "../config/cloudinary.js";
+import { getReceiverSocketId , io } from "../config/socket.js";
+
 
 export const getMessages = async(req,res)=>{
-  const senderId = req.body.senderId;
-  const receiverId = req.body.receiverId; 
+  const sender = req.user._id;
   
 
   try{
-    if(!senderId || !receiverId){
-        return res.status(400).json({
+    if(!sender){
+        return res.status(200).json({
         message:"bad request"
     })}
 
-    const allMessage = await Message.find({
-        senderId:senderId,
-        receiverId:receiverId
-    })
-
-    return res.status(200).json(allMessage);
+const allMessage = await Message.find({
+    $or:[
+    {senderId:sender},
+    {receiverId:sender}
+    ]
+}).sort({createdAt:1})
+    
+    return res.status(201).json(allMessage);
 
   }
   catch(err){
@@ -30,7 +33,6 @@ export const getMessages = async(req,res)=>{
 
 export const sendMessage = async(req,res)=>{
     const {senderId,receiverId,text,image} = req.body;
-
     try{
         if(!senderId || !receiverId){
             return res.status(200).json({
@@ -39,19 +41,25 @@ export const sendMessage = async(req,res)=>{
         }
 
         
-        const uploadResponse = await cloudinary.uploader.upload(image);
-        const uploadUrl = uploadResponse.secure_url;
-        
+        // const uploadResponse = await cloudinary.uploader.upload(image);
+        // const uploadUrl = uploadResponse.secure_url;
+
         const response = await Message.create({
-            senderId,
-            receiverId,
+            senderId:senderId,
+            receiverId:receiverId,
             text,
-            image : uploadUrl
+            image : ""
         })
+
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if(receiverSocketId){ // checks if the user is online , then sent the msg in realtime
+            io.to(receiverSocketId).emit("newMessage",response);
+        }
+        
 
 
         if(response){
-            return res.status(200).json(response);
+            return res.status(201).json(response);
         }
         else{
             return res.status(500).json({

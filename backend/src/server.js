@@ -3,12 +3,12 @@ import express from "express";
 import userRoutes from "./routes/user.route.js"
 import messageRoutes from "./routes/message.route.js"
 import {connectDB} from "./config/db.js"
+import {app,server} from "./config/socket.js"
 import cookieParser from "cookie-parser"
 import cors from "cors";
 
 dotenv.config()
 
-const app=express();
 app.use(express.json());
 app.use(cookieParser());
 
@@ -25,7 +25,7 @@ app.get("/",(req,res)=>{
 app.use("/api/auth",userRoutes)
 app.use("/api/message",messageRoutes)
 
-app.listen(process.env.PORT,()=>{
+server.listen(process.env.PORT,()=>{
     console.log(`the server is running on ${process.env.PORT}`);
     connectDB();
 })
