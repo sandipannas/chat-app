@@ -35,7 +35,7 @@ export const signup = async (req, res) => {
 
     if(newUser){
         generateJWT(newUser._id,res)
-        res.status(201).json({
+        res.status(200).json({
             id:newUser._id,
             fullName:newUser.fullName,
             email:newUser.email,
@@ -76,7 +76,7 @@ export const login = async (req, res) => {
     }
 
     generateJWT(user._id,res);
-    res.status(201).json({
+    res.status(200).json({
         id:user._id,
         fullName:user.fullName,
         email:user.email,

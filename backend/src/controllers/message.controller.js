@@ -14,6 +14,8 @@ export const getMessages = async(req,res)=>{
     })
     }
 
+   // console.log("Debug - getMessages:", { userId, otherUserId });
+
 const allMessage = await Message.find({
     $or:[
     {senderId:userId, receiverId:otherUserId},
@@ -21,6 +23,7 @@ const allMessage = await Message.find({
     ]
 }).sort({createdAt:1})
     
+   // console.log("Debug - found messages:", allMessage.length);
     return res.status(200).json(allMessage);
 
   }
