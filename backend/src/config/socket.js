@@ -7,7 +7,10 @@ const server = http.createServer(app);
 
 const io = new Server(server,{
     cors: {
-        origin:["https://chatappvin.netlify.app"]
+        origin:["https://chatappvin.netlify.app",
+                "http://localhost:5173"
+        ],
+        credentials:true
     }
 })
 
