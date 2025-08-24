@@ -7,14 +7,14 @@ export const authJWT =async (req,res,next)=>{
     const token = req.cookies.jwt;
     if(!token){
         return res.status(401).json({
-            massage:"Unauthorized user"
+            message:"Unauthorized user"
         })
     }
 
     const decoded = jwt.verify(token,process.env.JWT_PASSWORD);
     if(!decoded){
         return res.status(401).json({
-            massage:"Unauthorized user"
+            message:"Unauthorized user"
         })
     }
     const userId = decoded.userId;
@@ -29,7 +29,7 @@ export const authJWT =async (req,res,next)=>{
    catch(err){
     console.log("failed to authenticate")
     return res.status(500).json({
-        massage:"internal server error"
+        message:"internal server error"
     })
    }
 }

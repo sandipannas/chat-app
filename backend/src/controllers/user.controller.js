@@ -8,7 +8,7 @@ export const signup = async (req, res) => {
   try {
     //checking the fields are not null
     if (!fullName || !email || !password) {
-      return res.status(200).json({ 
+      return res.status(400).json({ 
         message: "All fields are Required" 
       });
     }
@@ -16,8 +16,8 @@ export const signup = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user) {
-      return res.status(200).json({ 
-        message: "Email is already resistered , try to Log In" 
+      return res.status(400).json({ 
+        message: "Email is already registered, try to Log In" 
       });
     }
     //hashing the user given password
@@ -124,7 +124,7 @@ export const updateUserProfilePicture = async(req , res)=>{
   try{
       if(!newProfilePicture){
         return res.status(400).json({
-            massage:"new profile pic is required"
+            message:"new profile pic is required"
         })
       }
       
@@ -147,7 +147,7 @@ export const updateUserFullName = async(req,res)=>{
     const userId=req.user._id;
     try{
         if(!newFullName){
-            return res.status(200).json({
+            return res.status(400).json({
                 message:"new name is required"
             })
         }
@@ -170,15 +170,15 @@ export const updateUserPassword = async(req,res)=>{
    
   try{
     if(!oldPassword || !newPassword){
-        return res.status(200).json({
-            message:'ivalid credentials'
+        return res.status(400).json({
+            message:'invalid credentials'
         })
     }
 
     const passwordCorrect= await bcrypt.compare(oldPassword,password);
 
     if(!passwordCorrect){
-        return res.status(200).json({
+        return res.status(400).json({
             message:"incorrect password"
         })
     }
