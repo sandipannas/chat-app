@@ -11,9 +11,9 @@ export const AuthStore = atom({
     isUpdatingProfile: false,
     isCheckingAuth: true,
 
-  socket:null
+    socket:null,
     
-  }
+  },
 });
 
 export const UserId = atom({
