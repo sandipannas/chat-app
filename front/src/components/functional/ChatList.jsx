@@ -49,8 +49,8 @@ const ChatList = () => {
     <div className="h-min">
       {messages.map((chat) => {
 
-        if (chat.receiverId == authUser._id){
-          console.log(chat+" received");
+        if (chat.senderId == authUser._id ){
+          console.log(chat+"sent");
           return (
             <div key={chat._id} className="pl-[20vw] flex justify-end h-min" >
               <div>
@@ -61,8 +61,8 @@ const ChatList = () => {
             </div>
           );
         }
-        if (chat.senderId == authUser._id) {
-          console.log(chat+" sent");
+        if (chat.receiverId == authUser._id) {
+          console.log(chat+"recieved");
           return (
             <div key={chat._id} className="h-min pr-[20vw] " >
               <Button className="h-max m-2 bg-amber-300 whitespace-normal break-all">
