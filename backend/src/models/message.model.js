@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const massageSchema = new mongoose.Schema({
+const messageSchema = new mongoose.Schema({
     senderId:{
         type:String,
         required:true,
@@ -22,6 +22,6 @@ const massageSchema = new mongoose.Schema({
 {timestamps: true}
 );
 
-const Massage = mongoose.model("Massage",massageSchema);
+const Message = mongoose.model("Message",messageSchema);
 
-export default Massage;
+export default Message;

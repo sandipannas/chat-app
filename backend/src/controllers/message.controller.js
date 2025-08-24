@@ -1,4 +1,4 @@
-import Message from "../models/massage.model.js"
+import Message from "../models/message.model.js"
 import cloudinary from "../config/cloudinary.js";
 import { getReceiverSocketId , io } from "../config/socket.js";
 
