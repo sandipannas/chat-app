@@ -10,7 +10,8 @@ export const generateJWT = (userId,res)=>{
         maxAge:7*24*60*60*1000,
         httpOnly:true, //prevent XSS attacks cross-site scripting attacks
         sameSite: process.env.NODE_ENV === "development" ? "lax" : "none", // Use "lax" for development
-        secure: process.env.NODE_ENV !== "development" // Only secure in production
+        secure: process.env.NODE_ENV !== "development", // Only secure in production
+        domain: process.env.NODE_ENV === "development" ? "localhost" : undefined // No domain restriction in production
     });
 
     return token;
