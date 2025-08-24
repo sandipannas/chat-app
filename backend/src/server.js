@@ -15,7 +15,9 @@ app.use(cookieParser());
 
 // CORS middleware
 app.use(cors({
-  origin: ['http://localhost:5173'],  // frontend URL
+  origin: ['http://localhost:5173',
+    'https://chatappvin.netlify.app'
+  ],  // frontend URL
   credentials: true                // allow cookies to be sent
 }));
 
