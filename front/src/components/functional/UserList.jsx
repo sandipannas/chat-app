@@ -39,7 +39,7 @@ const UserList = () => {
 
     return (
         <div className="flex flex-col content-start overflow-y-auto gap-3">
-            {people.map((user)=>{
+            {people && people.map((user)=>{
                 return(
                     <Button className="w-full h-15 bg-black/80 text-amber-300 backdrop-blur-sm" key={user._id}
                     onClick={()=>{
