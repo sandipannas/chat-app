@@ -62,15 +62,15 @@ export const login = async (req, res) => {
   try{
     const user = await User.findOne({email});
     if(!user){
-        return res.status(200).json({
-            massage:"Invalid Credentials"
+        return res.status(400).json({
+            message:"Invalid Credentials"
         })
     }
 
     const passwordCorrect = await bcrypt.compare(password,user.password);
     
     if(!passwordCorrect){
-        return res.status(200).json({
+        return res.status(400).json({
             message:"Invalid Credentials"
         })
     }
@@ -87,7 +87,7 @@ export const login = async (req, res) => {
   catch(err){
     console.log("error occured during login process",err);
     res.status(500).json({
-        massage:"internal server error"
+        message:"internal server error"
     })
   }
 };
@@ -98,7 +98,7 @@ export const logout = (req, res) => {
     return res.status(200).json({ message:"logged out successfully"})
   } catch(error){
     console.log("Error in logout controller",error);
-    res.status(500).json({ massage:"Internal server error" });
+    res.status(500).json({ message:"Internal server error" });
   }
 };
 
