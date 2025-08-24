@@ -13,35 +13,34 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRecoilValue, useSetRecoilState, useRecoilState } from "recoil";
 import { Loader2 } from "lucide-react";
-import {
-  ChatStore,
-  useGetMessages,
-  useGetUsers,
-  useSendMessage,
-} from "../store/ChatStore";
-import ChatList from "@/components/ChatList";
+import { ChatStore } from "../store/ChatStore";
+import ChatList from "@/components/functional/ChatList";
+import UserList from "@/components/functional/UserList";
 import { AuthStore } from "@/store/AuthStore";
 import { io } from "socket.io-client";
-const BASE_URL = import.meta.VITE_BASE_URL;
+import toast from "react-hot-toast";
+import { useChatFunctions } from "../store/ChatFunctions.js";
+const SETUP = import.meta.env.VITE_SETUP;
+const BASE_URL = SETUP=="DEVELOPMENT"?import.meta.env.VITE_BASE_URL_LOCAL:import.meta.env.VITE_BASE_URL_PUBLIC;
 
 const HomePage = () => {
   const { people, isUsersLoading, selectedUser, onlineUsers } =
     useRecoilValue(ChatStore);
   const [{ authUser }, setUser] = useRecoilState(AuthStore);
   const setChat = useSetRecoilState(ChatStore);
-  const getUsers = useGetUsers();
   const [socket, setSocket] = useState(null);
   const [messageToSend, setMessageToSend] = useState({
     text: "",
     image: "",
   });
-  const sendMessage = useSendMessage();
+
+  const {sendMessage , getMessages , getUsers } = useChatFunctions();
+
   const handleSend = () => {
     if (messageToSend.text.trim() == "" && messageToSend.image.trim() == "") {
       toast.error("Message can't be empty");
     } else {
       sendMessage({
-        senderId: authUser._id,
         receiverId: selectedUser._id,
         text: messageToSend.text,
         image: messageToSend.image,
@@ -49,14 +48,17 @@ const HomePage = () => {
     }
   };
 
-  const getMessages = useGetMessages();
+  
   useEffect(() => {
+    if (!authUser?._id) return;
+    
     console.log("creating socket...");
     const newSocket = io(BASE_URL, {
       transports: ["websocket"],
       upgrade: false,
       query: { userId: authUser._id },
     });
+    
     setSocket(newSocket);
 
     console.log("useEffect running, authUser:", authUser);
@@ -76,18 +78,6 @@ const HomePage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    getUsers();
-    getMessages();
-
-    return () => {
-      setChat((currentChat) => ({
-        selectedUser: null,
-        messages: [],
-        isUsersLoading: true,
-      }));
-    };
-  }, []);
 
   if (socket) {
     socket.on("getOnlineUsers", (userIds) => {
@@ -141,63 +131,8 @@ const HomePage = () => {
             <CardTitle>Chat</CardTitle>
             <CardDescription>People</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col content-start overflow-y-auto gap-3">
-            {isUsersLoading || !people ? (
-              <div className="h-100 flex flex-row justify-center">
-                <Loader2 className="size-15 animate-spin self-center">
-                  Loading
-                </Loader2>
-              </div>
-            ) : (
-              people.map((user) => {
-                if (onlineUsers.includes(user._id)) {
-                  if (selectedUser == user) {
-                    return (
-                      <Button className="w-full h-15 bg-black/80 text-amber-300 backdrop-blur-sm">
-                        {user.fullName}
-                      </Button>
-                    );
-                  }
-                  return (
-                    <Button
-                      className="
-                      w-full h-15
-                    bg-green-500/70 
-                      text-black 
-                      backdrop-blur-sm"
-                      onClick={() => {
-                        setChat((currentChat) => ({
-                          ...currentChat,
-                          selectedUser: user,
-                        }));
-                      }}
-                    >
-                      {user.fullName}
-                    </Button>
-                  );
-                }
-                if (selectedUser == user) {
-                  return (
-                    <Button className="w-full h-15 bg-black/80 text-amber-300 backdrop-blur-sm">
-                      {user.fullName}
-                    </Button>
-                  );
-                }
-                return (
-                  <Button
-                    className="w-full h-15 bg-black/10 text-black backdrop-blur-sm"
-                    onClick={() => {
-                      setChat((currentChat) => ({
-                        ...currentChat,
-                        selectedUser: user,
-                      }));
-                    }}
-                  >
-                    {user.fullName}
-                  </Button>
-                );
-              })
-            )}
+          <CardContent className="h-max overflow-y-auto" >
+            <UserList></UserList>
           </CardContent>
         </Card>
 

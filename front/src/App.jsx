@@ -1,6 +1,5 @@
 import React, { useEffect,useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Navbar from "./pages/Navbar";
 import HomePage from "./pages/HomePage";
 import SingUpPage from "./pages/SignUpPage";
 import LogInPage from "./pages/LogInPage";
@@ -14,28 +13,15 @@ import {Loader2} from "lucide-react"
 
 
 const App = () => {
-  window.WebSocket = window.WebSocket || globalThis.WebSocket;
-  const {checkAuth} = useAuthFunctions();
-  const [{ authUser, isCheckingAuth },setUser] = useRecoilState(AuthStore);
-  const [socket, setSocket] = useState(null);
 
-   // only on mount/unmount
-  
+  const {checkAuth} = useAuthFunctions();
+  const [{ authUser, isCheckingAuth } , setUser] = useRecoilState(AuthStore);
+
+   
+  //at the start of the app check if the user is authenticated
   useEffect(() => {
     checkAuth();
-    console.log("useEffect running, authUser:", authUser);
-  
-    if (authUser && socket && !socket.connected) {
-      console.log("connecting socket...");
-      socket.connect();
-      setUser(currentUser => ({
-        ...currentUser,
-        socket,
-      }));
-    }
-  
-  
-  }, [authUser, socket, setUser]);
+  },[]); // Remove authUser dependency to prevent infinite loops
 
   if (isCheckingAuth && !authUser) {
     return (<div className="h-100 flex flex-row justify-center">
@@ -48,7 +34,7 @@ const App = () => {
 
   return (
     <div>
-      <Navbar />
+      
       <Routes>
         <Route
           path="/"
