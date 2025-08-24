@@ -4,23 +4,24 @@ import { getReceiverSocketId , io } from "../config/socket.js";
 
 
 export const getMessages = async(req,res)=>{
-  const sender = req.user._id;
-  
+  const userId = req.user._id;
+  const { otherUserId } = req.query;
 
   try{
-    if(!sender){
-        return res.status(200).json({
-        message:"bad request"
-    })}
+    if(!otherUserId){
+        return res.status(400).json({
+        message:"Other user ID is required"
+    })
+    }
 
 const allMessage = await Message.find({
     $or:[
-    {senderId:sender},
-    {receiverId:sender}
+    {senderId:userId, receiverId:otherUserId},
+    {senderId:otherUserId, receiverId:userId}
     ]
 }).sort({createdAt:1})
     
-    return res.status(201).json(allMessage);
+    return res.status(200).json(allMessage);
 
   }
   catch(err){
@@ -32,11 +33,12 @@ const allMessage = await Message.find({
 }
 
 export const sendMessage = async(req,res)=>{
-    const {senderId,receiverId,text,image} = req.body;
+    const {receiverId,text,image} = req.body;
+    const senderId = req.user._id; // Get sender from authenticated user
     try{
-        if(!senderId || !receiverId){
-            return res.status(200).json({
-                message:"bad request"
+        if(!receiverId || !text){
+            return res.status(400).json({
+                message:"Receiver ID and message text are required"
             })
         }
 
