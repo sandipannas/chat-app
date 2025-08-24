@@ -81,16 +81,27 @@ export const useAuthFunctions = () => {
           ...currentUser,
           isSigningUp: true,
         }));
-        const res = await axiosInstance.post("/auth/signup", formData);
-        if (res.status === 200) {
+        const response = await axiosInstance.post("/auth/signup", formData);
+        console.log("Signup response:", response.data);
+        
+        if (response.status === 200) {
+            // Store token in localStorage as fallback for blocked cookies
+            if (response.data.token) {
+                localStorage.setItem('jwt', response.data.token);
+            }
+            setUser((currentUser) => ({
+              ...currentUser,
+              authUser: response.data,
+              isSigningUp: false,
+            }));
+            toast.success(response.data.message);
+        } else {
+          toast.error(response.data.message);
+          console.log("i am setting in signUp catch");
           setUser((currentUser) => ({
             ...currentUser,
-            authUser: res.data,
             isSigningUp: false,
           }));
-          toast.success(res.data.message);
-        } else {
-          toast.error(res.data.message);
         }
       } catch {
         toast.error("Failed to Create Account");
@@ -114,6 +125,10 @@ export const useAuthFunctions = () => {
         }));
         const res = await axiosInstance.post("/auth/login", formData);
         if (res.status === 200) {
+          // Store token in localStorage as fallback for blocked cookies
+          if (res.data.token) {
+            localStorage.setItem('jwt', res.data.token);
+          }
           setUser((currentUser) => ({
             ...currentUser,
             authUser: res.data, // backend should send user info in response
@@ -223,6 +238,8 @@ export const useAuthFunctions = () => {
   const logout = useCallback(async () => {
     try {
       const res = await axiosInstance.post("auth/logout");
+      // Clear token from localStorage
+      localStorage.removeItem('jwt');
       toast.success(res.data.message);
       console.log("i am setting in logout");
       setUser((currentUser) => ({
@@ -230,6 +247,8 @@ export const useAuthFunctions = () => {
         authUser: null,
       }));
     } catch (error) {
+      // Clear token even if logout request fails
+      localStorage.removeItem('jwt');
       toast.error("Failed to Logout");
     }
   }, [setUser]);
