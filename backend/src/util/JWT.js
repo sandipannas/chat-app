@@ -9,9 +9,10 @@ export const generateJWT = (userId,res)=>{
     res.cookie("jwt",token,{
         maxAge:7*24*60*60*1000,
         httpOnly:true, //prevent XSS attacks cross-site scripting attacks
-        sameSite: process.env.NODE_ENV === "development" ? "lax" : "none", // Use "lax" for development
+        sameSite: "lax", // "lax" for better compatibility across browsers
         secure: process.env.NODE_ENV !== "development", // Only secure in production
-        domain: process.env.NODE_ENV === "development" ? "localhost" : undefined // No domain restriction in production
+        domain: process.env.NODE_ENV === "development" ? "localhost" : undefined, // No domain restriction in production
+        path: "/" // Ensure cookie is available for all paths
     });
 
     return token;
