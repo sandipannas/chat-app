@@ -4,32 +4,74 @@ import { axiosInstance } from "@/lib/axios";
 import { AuthStore, UserId } from "./AuthStore";
 import toast from "react-hot-toast";
 
-
 export const useAuthFunctions = () => {
-  const [{ authUser, socket, isCheckingAuth }, setUser] =
-    useRecoilState(AuthStore);
+  const setUser = useSetRecoilState(AuthStore);
   const setUserId = useSetRecoilState(UserId);
 
   const checkAuth = useCallback(async () => {
+    console.log("trying to authenticate the user");
+
+    setUser((currentUser) => {
+      //no unneccessary setting of state
+      if (currentUser.isCheckingAuth == false) {
+        return {
+          ...currentUser,
+          isCheckingAuth: true,
+        };
+      }
+      return currentUser;
+    });
+
     try {
       const res = await axiosInstance.get("/auth/me");
-      if (authUser == null || authUser.email != res.data.email) {
-        setUser((currentUser) => ({
-          ...currentUser,
-          authUser: res.data,
-          isCheckingAuth: false,
-        }));
-      }
-      setUserId(res.data._id);
+      console.log("the server responded with => ", res.status);
+
+      console.log("user is authenticated");
+
+      setUser((currentUser) => {
+        //no need to set if authUser already exist
+        if (
+          res.data &&
+          (currentUser.authUser == null ||
+            currentUser.authUser._id != res.data._id)
+        ) {
+          // Move setUserId outside the updater function
+          
+          return {
+            ...currentUser,
+            authUser: res.data,
+            isCheckingAuth: false,
+          };
+        } else {
+          console.log("same userdata already exist");
+          //no unneccessary setting of state
+          if (currentUser.isCheckingAuth == true) {
+            return {
+              ...currentUser,
+              isCheckingAuth: false,
+            };
+          } else {
+            return currentUser;
+          }
+        }
+      });
     } catch (error) {
-      console.log("i am setting in checkAuth catch", error);
-      setUser((currentUser) => ({
-        ...currentUser,
-        authUser: null,
-        isCheckingAuth: false,
-      }));
+      console.log("error occured while checking auth", error);
+      //no unneccessary setting of state
+
+      setUser((currentUser) => {
+        if (currentUser.isCheckingAuth == true) {
+          return {
+            ...currentUser,
+            authUser: null,
+            isCheckingAuth: false,
+          };
+        } else {
+          return currentUser;
+        }
+      });
     }
-  }, [authUser]);
+  }, []); //no dependency as it can cause infinite loop
 
   const signup = useCallback(
     async (formData) => {
@@ -40,8 +82,12 @@ export const useAuthFunctions = () => {
           isSigningUp: true,
         }));
         const res = await axiosInstance.post("/auth/signup", formData);
-        if (res.status === 201) {
-          checkAuth();
+        if (res.status === 200) {
+          setUser((currentUser) => ({
+            ...currentUser,
+            authUser: res.data,
+            isSigningUp: false,
+          }));
           toast.success(res.data.message);
         } else {
           toast.error(res.data.message);
@@ -67,13 +113,13 @@ export const useAuthFunctions = () => {
           isLogingIn: true,
         }));
         const res = await axiosInstance.post("/auth/login", formData);
-        if (res.status === 201) {
+        if (res.status === 200) {
           setUser((currentUser) => ({
             ...currentUser,
-            authUser: res.data,   // backend should send user info in response
+            authUser: res.data, // backend should send user info in response
             isLogingIn: false,
           }));
-          setTimeout(checkAuth,5000);
+          // Remove checkAuth() call - login response already contains user data
           toast.success(res.data.message);
         } else {
           toast.error(res.data.message);
