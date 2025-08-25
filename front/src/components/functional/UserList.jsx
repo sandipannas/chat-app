@@ -41,9 +41,9 @@ const UserList = () => {
         )
     }
 
-    if(!onlineUsers){  ///just to fix the socket bugs
-        navigate(0);
-    }
+    // if(!onlineUsers){  ///just to fix the socket bugs
+    //     navigate(0);
+    // }
 
     return (
         <div className="flex flex-col content-start overflow-y-auto gap-3 scrollbar-hide">
