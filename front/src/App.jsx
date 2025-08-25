@@ -11,6 +11,7 @@ import { useRecoilState } from "recoil";
 import { Toaster } from "react-hot-toast";
 import {Loader2} from "lucide-react"
 import Navbar from "./components/functional/Navbar";
+import loading_cat from "./assets/loading_cat.gif"
 
 
 const App = () => {
@@ -25,10 +26,16 @@ const App = () => {
   },[]); // Remove authUser dependency to prevent infinite loops
 
   if (isCheckingAuth && !authUser) {
-    return (<div className="h-100 flex flex-row justify-center">
-    <Loader2 className="size-15 animate-spin self-center">
-      Loading
-    </Loader2>
+    return (<div className="bg-[#fdfdfd] flex flex-row ">
+      <div className="flex flex-row justify-center w-full">
+      <Loader2 className="size-25 animate-spin self-center">
+        Loading
+      </Loader2>
+      </div>
+      <div className=" bg-[#fdfdfd] h-screen w-screen flex flex-row justify-end"> 
+        <img src={loading_cat} alt='a cute loading cat' />
+      </div>
+      
   </div>)
   }
 
