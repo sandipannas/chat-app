@@ -22,8 +22,11 @@ import toast from "react-hot-toast";
 import { useChatFunctions } from "../store/ChatFunctions.js";
 const SETUP = import.meta.env.VITE_SETUP;
 const BASE_URL = SETUP=="DEVELOPMENT"?import.meta.env.VITE_BASE_URL_LOCAL:import.meta.env.VITE_BASE_URL_PUBLIC;
+import { useNavigate } from "react-router-dom";
+
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const { people, isUsersLoading, selectedUser, onlineUsers } =
     useRecoilValue(ChatStore);
   const [{ authUser }, setUser] = useRecoilState(AuthStore);

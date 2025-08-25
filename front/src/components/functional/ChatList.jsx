@@ -1,26 +1,27 @@
-import React, { useEffect , useRef } from "react";
+import React, { useEffect , useRef , useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { Loader2 } from "lucide-react";
 import { ChatStore } from "@/store/ChatStore";
-import { AuthStore } from "@/store/AuthStore";
+import { AuthStore, UserId } from "@/store/AuthStore";
 import { useChatFunctions } from "@/store/ChatFunctions";
 
 
 const ChatList = () => {
-  console.log("trying to load the messages section")
+  
   const { authUser } = useRecoilValue(AuthStore);
   const { messages, isMessagesLoading, selectedUser} = useRecoilValue(ChatStore);
   const { getMessages } = useChatFunctions();
   const messagesEndRef = useRef(null);
   
   
-  // Load messages when selectedUser changes
+  
+  
   useEffect(() => {
     if (selectedUser && selectedUser._id) {
-      console.log("Loading messages for selectedUser:", selectedUser._id);
       getMessages(selectedUser._id);
     }
+
   }, [selectedUser]);
 
   useEffect(()=>{
@@ -29,7 +30,7 @@ const ChatList = () => {
     }
   }, [messages])
   
-  //if messages are loading
+  
   if(isMessagesLoading){
     return(
       <div className='h-hax flex flex-row justify-center'>
@@ -40,8 +41,6 @@ const ChatList = () => {
     )
   }
 
-  // Handle null or empty messages 
-  console.log("message arr  ",messages)
   if (!messages || messages.length === 0) {
     return (
       <div className="h-min p-4 text-center text-gray-500">
@@ -52,10 +51,9 @@ const ChatList = () => {
 
   return (
     <div className="h-min">
-      {messages.map((chat) => {
-
-        if (chat.senderId == authUser._id ){
-          console.log(chat+"sent");
+      {messages.map((chat, index) => {
+        
+        if (chat.receiverId == selectedUser._id) {
           return (
             <div key={chat._id} className="pl-[20vw] flex justify-end h-min" >
               <div>
@@ -66,8 +64,7 @@ const ChatList = () => {
             </div>
           );
         }
-        if (chat.receiverId == authUser._id) {
-          console.log(chat+"recieved");
+        if (chat.senderId == selectedUser._id) {
           return (
             <div key={chat._id} className="h-min pr-[20vw] " >
               <Button className="h-max m-2 bg-amber-300 whitespace-normal break-all">
@@ -76,9 +73,8 @@ const ChatList = () => {
             </div>
           );
         }
-        
-        return null;
 
+        return <div key={chat._id}>message is present but not displayed</div>;
       })}
     <div ref={messagesEndRef} ></div>
     </div>
