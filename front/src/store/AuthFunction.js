@@ -35,7 +35,6 @@ export const useAuthFunctions = () => {
           (currentUser.authUser == null ||
             currentUser.authUser._id != res.data._id)
         ) {
-          // Move setUserId outside the updater function
           
           return {
             ...currentUser,
@@ -55,10 +54,12 @@ export const useAuthFunctions = () => {
           }
         }
       });
+
+      setUserId(res.data._id);
     } catch (error) {
       console.log("error occured while checking auth", error);
       //no unneccessary setting of state
-
+      
       setUser((currentUser) => {
         if (currentUser.isCheckingAuth == true) {
           return {
@@ -94,6 +95,7 @@ export const useAuthFunctions = () => {
               authUser: response.data,
               isSigningUp: false,
             }));
+            setUserId(response.data._id);
             toast.success(response.data.message);
         } else {
           toast.error(response.data.message);
@@ -134,7 +136,8 @@ export const useAuthFunctions = () => {
             authUser: res.data, // backend should send user info in response
             isLogingIn: false,
           }));
-          // Remove checkAuth() call - login response already contains user data
+          setUserId(res.data._id);
+          
           toast.success(res.data.message);
         } else {
           toast.error(res.data.message);
@@ -246,6 +249,7 @@ export const useAuthFunctions = () => {
         ...currentUser,
         authUser: null,
       }));
+      setUserId("");
     } catch (error) {
       // Clear token even if logout request fails
       localStorage.removeItem('jwt');

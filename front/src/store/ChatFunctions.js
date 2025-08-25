@@ -40,6 +40,7 @@ export const useChatFunctions = () => {
     setChat((currentChat) => ({
       ...currentChat,
       isMessagesLoading: true,
+      messages: null, // Clear previous messages immediately
     }));
 
     try {
@@ -53,16 +54,18 @@ export const useChatFunctions = () => {
       setChat((currentChat) => ({
         ...currentChat,
         messages: res.data,
+        isMessagesLoading: false,
       }));
       console.log("messages fetched successfully");
     } catch (error) {
       console.log("error occured while fetching messages", error);
       toast.error("error ocurred while fetching messages");
+      setChat((currentChat) => ({
+        ...currentChat,
+        messages: [],
+        isMessagesLoading: false,
+      }));
     }
-    setChat((currentChat) => ({
-      ...currentChat,
-      isMessagesLoading: false,
-    }));
   }, []);
 
   const sendMessage = useCallback(async (messageToSend) => {
