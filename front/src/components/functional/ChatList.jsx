@@ -4,21 +4,25 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { Loader2 } from "lucide-react";
 import { ChatStore } from "@/store/ChatStore";
 import { AuthStore } from "@/store/AuthStore";
+import { useChatFunctions } from "@/store/ChatFunctions";
 
 
 const ChatList = () => {
   console.log("trying to load the messages section")
   const { authUser } = useRecoilValue(AuthStore);
-  const { messages, isMessagesLoading} = useRecoilValue(ChatStore);
+  const { messages, isMessagesLoading, selectedUser} = useRecoilValue(ChatStore);
+  const { getMessages } = useChatFunctions();
   const messagesEndRef = useRef(null);
   
-  console.log("ChatList Debug:", { 
-    messages, 
-    messagesLength: messages?.length, 
-    authUserId: authUser?._id,
-    isMessagesLoading 
-  });
   
+  // Load messages when selectedUser changes
+  useEffect(() => {
+    if (selectedUser && selectedUser._id) {
+      console.log("Loading messages for selectedUser:", selectedUser._id);
+      getMessages(selectedUser._id);
+    }
+  }, [selectedUser]);
+
   useEffect(()=>{
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -28,7 +32,7 @@ const ChatList = () => {
   //if messages are loading
   if(isMessagesLoading){
     return(
-      <div>
+      <div className='h-hax flex flex-row justify-center'>
         <Loader2 className="size-15 animate-spin self-center">
           Loading
         </Loader2>
@@ -36,7 +40,8 @@ const ChatList = () => {
     )
   }
 
-  // Handle null or empty messages
+  // Handle null or empty messages 
+  console.log("message arr  ",messages)
   if (!messages || messages.length === 0) {
     return (
       <div className="h-min p-4 text-center text-gray-500">

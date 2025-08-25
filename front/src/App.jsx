@@ -10,6 +10,7 @@ import { useAuthFunctions } from "./store/AuthFunction";
 import { useRecoilState } from "recoil";
 import { Toaster } from "react-hot-toast";
 import {Loader2} from "lucide-react"
+import Navbar from "./components/functional/Navbar";
 
 
 const App = () => {
@@ -34,7 +35,7 @@ const App = () => {
 
   return (
     <div>
-      
+      <Navbar></Navbar>
       <Routes>
         <Route
           path="/"

@@ -108,7 +108,7 @@ const HomePage = () => {
   }
 
   return (
-    <div>
+    <div className="relative">
       <div
         style={{
           width: "100%",
@@ -131,7 +131,7 @@ const HomePage = () => {
             <CardTitle>Chat</CardTitle>
             <CardDescription>People</CardDescription>
           </CardHeader>
-          <CardContent className="h-max overflow-y-auto" >
+          <CardContent className="h-max overflow-y-auto scrollbar-hide" >
             <UserList></UserList>
           </CardContent>
         </Card>
@@ -145,7 +145,7 @@ const HomePage = () => {
                 <CardTitle>{selectedUser.fullName}</CardTitle>
                 <CardDescription>{selectedUser.email}</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 overflow-y-auto h-[70vh] gap-5">
+              <CardContent className="grid grid-cols-1 overflow-y-auto scrollbar-hide h-[70vh] gap-5">
                 <ChatList></ChatList>
               </CardContent>
               <CardFooter>

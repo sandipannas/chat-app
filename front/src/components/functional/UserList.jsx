@@ -6,16 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 const UserList = () => {
-    const [{people , isUsersLoading} , setChat] = useRecoilState(ChatStore);
+    const [{people , isUsersLoading , selectedUser} , setChat] = useRecoilState(ChatStore);
     const { getUsers , getMessages } = useChatFunctions();
     useEffect(()=>{
         console.log("useEffect running");
         if(people == null){
          getUsers();   
         }
-        //if(selectedUser && messages == null){
-        //    getMessages(selectedUser._id);
-        //}
+        if(selectedUser && messages == null){
+            getMessages(selectedUser._id);
+        }
 
         return ()=>{
          setChat({
@@ -38,10 +38,10 @@ const UserList = () => {
     }
 
     return (
-        <div className="flex flex-col content-start overflow-y-auto gap-3">
+        <div className="flex flex-col content-start overflow-y-auto gap-3 scrollbar-hide">
             {people && people.map((user)=>{
                 return(
-                    <Button className="w-full h-15 bg-black/80 text-amber-300 backdrop-blur-sm" key={user._id}
+                    <Button className="w-full h-15 bg-gray-300 text-black backdrop-blur-sm focus:bg-black/80 focus:text-amber-300 focus:scale-97" key={user._id}
                     onClick={()=>{
                         setChat((currentChat)=>({
                             ...currentChat,

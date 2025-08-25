@@ -11,10 +11,6 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
     },
     extend: {
       keyframes: {
@@ -33,5 +29,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")], // Add this line
+  plugins: [require("tailwindcss-animate")], 
 }
