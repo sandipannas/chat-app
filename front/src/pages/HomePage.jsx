@@ -78,6 +78,11 @@ const HomePage = () => {
     return () => {
       console.log("cleaning up socket...");
       newSocket.disconnect();
+      setChat((currentChat)=>({
+        ...currentChat,
+        socket:null,
+        onlineUsers:null,
+      }))
     };
   }, []);
 
