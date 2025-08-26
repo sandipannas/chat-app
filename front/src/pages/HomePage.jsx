@@ -133,25 +133,31 @@ const HomePage = () => {
           hoverFillColor="#B2BEB5"
         />
       </div>
-      <div className="grid grid-cols-[3fr_5fr] gap-5">
-        <Card className="h-[88vh] mt-18.5 ml-5 z-3 backdrop-blur-sm">
+      <div className="grid grid-cols-1 z-10 relative lg:h-auto lg:w-auto lg:grid lg:grid-cols-[3fr_5fr] lg:gap-5">
+        <Card className={`${selectedUser?"hidden":""}  lg:block mt-18 ml-3 mr-3 h-[88vh]  lg:relative lg:h-[88vh] lg:mt-18.5 lg:ml-5 z-3 backdrop-blur-sm`}>
           <CardHeader>
             <CardTitle>Chat</CardTitle>
             <CardDescription>People</CardDescription>
           </CardHeader>
-          <CardContent className="h-max overflow-y-auto scrollbar-hide" >
+          <CardContent className="lg:h-max lg:overflow-y-auto lg:scrollbar-hide" >
             <UserList></UserList>
           </CardContent>
         </Card>
 
-        <Card className="h-[88vh] mt-18.5 mr-5 z-3 backdrop-blur-sm">
+        <Card className={`${selectedUser?"":"hidden"} lg:block mt-18 ml-3 mr-3 h-[88vh] lg-relative lg:h-[88vh] lg:mt-18.5 lg:mr-5 lg:z-3 backdrop-blur-sm`}>
           {!selectedUser ? (
             <div></div>
           ) : (
             <>
-              <CardHeader>
+              <CardHeader className="flex flex-row justify-between">
                 <CardTitle>{selectedUser.fullName}</CardTitle>
-                <CardDescription>{selectedUser.email}</CardDescription>
+                <CardDescription></CardDescription>
+                <Button className="self-end bg-red-500 hover:bg-red-700 text-white"
+                onClick={()=>setChat(currentChat=>({
+                  ...currentChat,
+                  selectedUser:null,
+                  messages:null,
+                }))}>X</Button>
               </CardHeader>
               <CardContent className="grid grid-cols-1 overflow-y-auto scrollbar-hide h-[70vh] gap-5">
                 <ChatList></ChatList>
