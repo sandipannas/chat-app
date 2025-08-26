@@ -155,7 +155,7 @@ const ProfilePage = () => {
                           />
                         </div>
                       </div>
-                      <DialogFooter>
+                      <DialogFooter className='flex flex-row justify-end'>
                         
                           <Button variant="outline"
                           onClick={(e)=>{
@@ -276,7 +276,7 @@ const ProfilePage = () => {
                           </div>
                         </div>
                       </div>
-                      <DialogFooter>
+                      <DialogFooter className='flex flex-row justify-end'>
                         
                           <Button variant="outline"
                           onClick={(e)=>{
