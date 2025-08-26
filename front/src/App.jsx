@@ -26,13 +26,13 @@ const App = () => {
   },[]); // Remove authUser dependency to prevent infinite loops
 
   if (isCheckingAuth && !authUser) {
-    return (<div className="bg-[#fdfdfd] flex flex-row ">
-      <div className="flex flex-row justify-center w-full">
+    return (<div className="bg-[#fdfdfd] flex flex-col lg:flex lg:flex-row ">
+      <div className="h-[50vh] flex flex-col justify-center items-center lg:flex lg:flex-row lg:justify-center lg:w-full  lg:h-screen">
       <Loader2 className="size-25 animate-spin self-center">
         Loading
       </Loader2>
       </div>
-      <div className=" bg-[#fdfdfd] h-screen w-screen flex flex-row justify-end"> 
+      <div className=" lg:bg-[#fdfdfd] lg:h-screen lg:w-screen lg:flex lg:flex-row lg:justify-end"> 
         <img src={loading_cat} alt='a cute loading cat' />
       </div>
       
