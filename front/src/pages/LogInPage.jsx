@@ -20,6 +20,9 @@ import { LuEye, LuEyeClosed } from "react-icons/lu";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 
+
+
+
 const LogInPage = () => {
   const { login } = useAuthFunctions();
   const navigate = useNavigate();
@@ -75,7 +78,7 @@ const LogInPage = () => {
           hoverFillColor="#B2BEB5"
         />
       </div>
-      <Card className="w-full max-w-sm self-center z-1 text-gray-700 backdrop-blur-sm backdrop-opacity-70 ">
+      <Card className="w-full max-w-sm self-center z-1 scale-90 text-gray-700 backdrop-blur-sm backdrop-opacity-70 lg:scale-100">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
@@ -96,7 +99,7 @@ const LogInPage = () => {
                   id="email"
                   type="email"
                   placeholder="m@example.com"
-                  className="shadow-md"
+                  className="lg:shadow-md"
                   onChange={(e) =>
                     setFormData((currentFormData) => ({
                       ...currentFormData,
@@ -144,7 +147,7 @@ const LogInPage = () => {
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex-col gap-2">
+        <CardFooter className="flex flex-col gap-2">
           <Button
             type="submit"
             className="w-full shadow-outline shadow-md hover:rounded-md hover:border-green-500 hover:border"
