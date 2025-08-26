@@ -89,7 +89,7 @@ const SignUpPage = () => {
           hoverFillColor="#B2BEB5"
         />
       </div>
-      <Card className="w-full max-w-sm self-center z-1 text-gray-700 shadow-lg backdrop-blur-sm backdrop-opacity-70 ">
+      <Card className=" scale-100  h-min lg:h-auto lg:w-full lg:max-w-sm self-center z-10 text-gray-700 shadow-lg backdrop-blur-sm backdrop-opacity-70 ">
         <CardHeader>
           <CardTitle>Create your account</CardTitle>
           <CardDescription>
@@ -188,7 +188,7 @@ const SignUpPage = () => {
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex-col gap-2">
+        <CardFooter className="flex flex-col gap-2">
           <Button
             type="submit"
             onClick={handelSubmit}
