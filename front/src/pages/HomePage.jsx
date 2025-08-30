@@ -143,7 +143,7 @@ const HomePage = () => {
             <CardTitle>Chat</CardTitle>
             <CardDescription>People</CardDescription>
           </CardHeader>
-          <CardContent className="h-max lg:h-[77vh] lg:mt-5 overflow-y-auto scrollbar-hide" >
+          <CardContent className="h-max lg:h-[74vh] lg:mt-5 overflow-y-auto scrollbar-hide" >
             <UserList></UserList>
           </CardContent>
         </Card>
