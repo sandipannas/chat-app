@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , useRef } from "react";
 import Squares from "../blocks/Backgrounds/Squares/Squares";
 import {
   Card,
@@ -49,6 +49,10 @@ const HomePage = () => {
         image: messageToSend.image,
       });
     }
+    setMessageToSend({
+      text:"",
+      image:"",
+    });
   };
 
   
@@ -134,12 +138,12 @@ const HomePage = () => {
         />
       </div>
       <div className="grid grid-cols-1 z-10 relative lg:h-auto lg:w-auto lg:grid lg:grid-cols-[3fr_5fr] lg:gap-5">
-        <Card className={`${selectedUser?"hidden":""}  lg:block mt-18 ml-3 mr-3 h-[88vh]  lg:relative lg:h-[88vh] lg:mt-18.5 lg:ml-5 z-3 backdrop-blur-sm`}>
+        <Card className={`${selectedUser?"hidden":""}  lg:block mt-18 ml-3 mr-3 h-[88vh]  lg:relative lg:mt-18.5 lg:ml-5 z-3 backdrop-blur-sm`}>
           <CardHeader>
             <CardTitle>Chat</CardTitle>
             <CardDescription>People</CardDescription>
           </CardHeader>
-          <CardContent className="lg:h-max lg:overflow-y-auto lg:scrollbar-hide" >
+          <CardContent className="h-max lg:h-[77vh] lg:mt-5 overflow-y-auto scrollbar-hide" >
             <UserList></UserList>
           </CardContent>
         </Card>
@@ -166,6 +170,7 @@ const HomePage = () => {
                 <div className="w-full grid grid-cols-[6fr_1fr] gap-3">
                   <Input
                     type="text"
+                    value={messageToSend.text}
                     className="direction:rtl text-right text-aling"
                     onChange={(e) => {
                       setMessageToSend({
