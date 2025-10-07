@@ -8,7 +8,7 @@ export const axiosInstance = axios.create({
 
 // Adding token to requests if stored in localStorage (fallback for blocked cookies)
 axiosInstance.interceptors.request.use((config) => {
-    const token = localStorage.getItem('jwt');
+    const token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }

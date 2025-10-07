@@ -7,20 +7,27 @@ import toast from "react-hot-toast";
 const GoogleCallback = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
 
     if (token) {
-      localStorage.setItem("jwt", token);
-
+      try {
+        // try localStorage first
+        localStorage.setItem("jwt", token);
+        console.log("Stored token in localStorage");
+      } catch (e) {
+        // fallback for Safari
+        sessionStorage.setItem("jwt", token);
+        console.log("Stored token in sessionStorage (Safari fallback)");
+      }
+  
+      // replace state to remove token from URL
       window.history.replaceState({}, document.title, "/");
-      setTimeout(() => {
-        setLoading(false);
-        navigate("/"); // go to homepage
-      }, 4000);
+  
+      // force reload to re-init app with token
+      window.location.reload();
     } else {
       navigate("/");
     }
