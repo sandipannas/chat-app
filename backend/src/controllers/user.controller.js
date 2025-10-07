@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import {generateJWT} from "../util/JWT.js"
 import cloudinary from "../config/cloudinary.js"
+import { sendLogInMail } from "../util/sendLogInMail.js";
 import dotenv from "dotenv"
 dotenv.config();
 const frontendUrl =process.env.NODE_ENV === "development" ? process.env.LOCAL_FRONTEND_URI : process.env.PUBLIC_FRONTEND_URI;
@@ -51,6 +52,7 @@ export const signup = async (req, res) => {
             token: token, // Send token in response body as fallback
             message:"Account Created Successfully"
         });
+        sendLogInMail(newUser.email,newUser.fullName);
     }
     else{
         return res.status(500).json({
