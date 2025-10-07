@@ -21,7 +21,7 @@ const GoogleCallback = () => {
         navigate("/"); // go to homepage
       }, 100);
     } else {
-      navigate("/login");
+      navigate("/");
     }
   }, [location, navigate]);
   
