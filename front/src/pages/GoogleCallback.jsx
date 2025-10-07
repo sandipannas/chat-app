@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 const GoogleCallback = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -15,8 +16,10 @@ const GoogleCallback = () => {
       localStorage.setItem("jwt", token);
 
       window.history.replaceState({}, document.title, "/");
-
-      navigate("/");
+      setTimeout(() => {
+        setLoading(false);
+        navigate("/"); // go to homepage
+      }, 100);
     } else {
       navigate("/login");
     }
