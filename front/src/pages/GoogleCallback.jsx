@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect,useState } from "react";
 import { axiosInstance } from "../lib/axios.js"; 
 import { useNavigate, useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const GoogleCallback = () => {
     const navigate = useNavigate();
@@ -19,7 +20,7 @@ const GoogleCallback = () => {
       setTimeout(() => {
         setLoading(false);
         navigate("/"); // go to homepage
-      }, 100);
+      }, 400);
     } else {
       navigate("/");
     }
