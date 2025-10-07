@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import User from '../models/user.model.js'
+import passport from 'passport';
 
 export const authJWT =async (req,res,next)=>{
    try{
@@ -42,3 +43,10 @@ export const authJWT =async (req,res,next)=>{
     })
    }
 }
+
+export const sessionFalse = passport.authenticate("google", { session: false });
+export const googleOAuth = passport.authenticate("google", 
+    { 
+        scope: ["profile", "email"],
+        prompt: "select_account" 
+    });

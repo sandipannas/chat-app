@@ -2,6 +2,14 @@ import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import {generateJWT} from "../util/JWT.js"
 import cloudinary from "../config/cloudinary.js"
+import dotenv from "dotenv"
+dotenv.config();
+const frontendUrl =process.env.NODE_ENV === "development" ? process.env.LOCAL_FRONTEND_URI : process.env.PUBLIC_FRONTEND_URI;
+
+export const googleOAuthCallback = async(req,res)=>{ 
+    const token = generateJWT(req.user._id, res);
+    res.redirect(`${frontendUrl}/google/callback?token=${token}`);
+}
 
 export const signup = async (req, res) => {
   const { fullName, email, password ,profilePicture} = req.body;

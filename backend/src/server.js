@@ -1,5 +1,8 @@
 import dotenv from "dotenv"
 import express from "express";
+
+import passport from "./config/passport.js";
+
 import userRoutes from "./routes/user.route.js"
 import messageRoutes from "./routes/message.route.js"
 import {connectDB} from "./config/db.js"
@@ -15,11 +18,14 @@ app.use(cookieParser());
 
 // CORS middleware
 app.use(cors({
-  origin: ['http://localhost:5173',
-    'https://chatappvin.netlify.app' 
+  origin: [
+    process.env.PUBLIC_FRONTEND_URI,
+    process.env.LOCAL_FRONTEND_URI
   ],  // frontend URL
   credentials: true                // allow cookies to be sent
 }));
+
+app.use(passport.initialize());
 
 app.get("/",(req,res)=>{
     res.send("API is running successfully");
