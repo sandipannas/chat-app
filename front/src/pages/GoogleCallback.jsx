@@ -15,9 +15,6 @@ const GoogleCallback = () => {
 
         navigate("/");
       }
-      else{
-        navigate("/login");
-      }
     }, []);
   
     return <div>Logging in with Google...</div>;
