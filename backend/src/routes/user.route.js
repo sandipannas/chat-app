@@ -1,4 +1,6 @@
 import express from 'express';
+import passport from "../config/passport.js";
+
 import { 
     signup,
     login, 
@@ -7,13 +9,17 @@ import {
     updateUserFullName,
     updateUserPassword,
     getAllUsers,
-    getCurrentUser 
+    getCurrentUser,
+    googleOAuthCallback
 } from '../controllers/user.controller.js';
-import { authJWT } from '../middlewares/auth.middleware.js';
+import { authJWT, sessionFalse ,googleOAuth } from '../middlewares/auth.middleware.js';
 
 const router=express.Router();
 
 ///user
+router.get("/google",googleOAuth);
+
+router.get("/google/callback",sessionFalse,googleOAuthCallback);
 
 router.post("/signup",signup);
 
