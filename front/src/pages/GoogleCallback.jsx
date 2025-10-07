@@ -20,7 +20,7 @@ const GoogleCallback = () => {
       setTimeout(() => {
         setLoading(false);
         navigate("/"); // go to homepage
-      }, 400);
+      }, 4000);
     } else {
       navigate("/");
     }
