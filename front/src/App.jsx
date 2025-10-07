@@ -1,49 +1,55 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import SingUpPage from "./pages/SignUpPage";
 import LogInPage from "./pages/LogInPage";
 import ProfilePage from "./pages/ProfilePage";
 import LogOut from "./pages/LogOut";
-import { AuthStore} from "./store/AuthStore";
+import GoogleCallback from "./pages/GoogleCallback";
+import { AuthStore } from "./store/AuthStore";
 import { useAuthFunctions } from "./store/AuthFunction";
 import { useRecoilState } from "recoil";
 import { Toaster } from "react-hot-toast";
-import {Loader2} from "lucide-react"
+import { Loader2 } from "lucide-react";
 import Navbar from "./components/functional/Navbar";
-import loading_cat from "./assets/loading_cat.gif"
-
+import loading_cat from "./assets/loading_cat.gif";
+import { useLoadingStage } from "./store/LoadingStage";
 
 const App = () => {
+  const { checkAuth } = useAuthFunctions();
+  const [{ authUser, isCheckingAuth }, setUser] = useRecoilState(AuthStore);
 
-  const {checkAuth} = useAuthFunctions();
-  const [{ authUser, isCheckingAuth } , setUser] = useRecoilState(AuthStore);
+  const isUpdatingName = useLoadingStage((state) => state.isUpdatingName);
+  const isUpdatingPassword = useLoadingStage(
+    (state) => state.isUpdatingPassword
+  );
 
-   
   //at the start of the app check if the user is authenticated
   useEffect(() => {
+    console.log("checking auth in the app jsx");
     checkAuth();
-  },[]); // Remove authUser dependency to prevent infinite loops
+  }, []); // Remove authUser dependency to prevent infinite loops
 
   if (isCheckingAuth && !authUser) {
-    return (<div className="bg-[#fdfdfd] flex flex-col lg:flex lg:flex-row ">
-      <div className="h-[50vh] flex flex-col justify-center items-center lg:flex lg:flex-row lg:justify-center lg:w-full  lg:h-screen">
-      <Loader2 className="size-25 animate-spin self-center">
-        Loading
-      </Loader2>
+    return (
+      <div className="bg-[#fdfdfd] flex flex-col lg:flex lg:flex-row ">
+        <div className="h-[50vh] flex flex-col justify-center items-center lg:flex lg:flex-row lg:justify-center lg:w-full  lg:h-screen">
+          <Loader2 className="size-25 animate-spin self-center">
+            Loading
+          </Loader2>
+        </div>
+        <div className=" lg:bg-[#fdfdfd] lg:h-screen lg:w-screen lg:flex lg:flex-row lg:justify-end">
+          <img src={loading_cat} alt="a cute loading cat" />
+        </div>
       </div>
-      <div className=" lg:bg-[#fdfdfd] lg:h-screen lg:w-screen lg:flex lg:flex-row lg:justify-end"> 
-        <img src={loading_cat} alt='a cute loading cat' />
-      </div>
-      
-  </div>)
+    );
   }
-
 
   return (
     <div>
-      <Navbar></Navbar>
+      {isUpdatingName || isUpdatingPassword ? <></> : <Navbar></Navbar>}
       <Routes>
+        <Route path="/google/callback" element={<GoogleCallback />} />
         <Route
           path="/"
           element={authUser ? <HomePage /> : <Navigate to="/login" />}

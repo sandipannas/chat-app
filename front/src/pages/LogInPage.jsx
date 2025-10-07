@@ -20,10 +20,18 @@ import { LuEye, LuEyeClosed } from "react-icons/lu";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 
+const SETUP = import.meta.env.VITE_SETUP;
+const base_url = SETUP=="DEVELOPMENT"?import.meta.env.VITE_API_URL_LOCAL:import.meta.env.VITE_API_URL_PUBLIC;
+
 
 
 
 const LogInPage = () => {
+
+  const loginWithGoogle = () => {
+    window.location.href = base_url + "/auth/google"; 
+  }
+
   const { login } = useAuthFunctions();
   const navigate = useNavigate();
   const handelSignUpClick = () => {
@@ -162,7 +170,9 @@ const LogInPage = () => {
               "Login"
             )}
           </Button>
-          <Button variant="outline" className="w-full shadow-lg">
+          <Button variant="outline" className="w-full shadow-lg"
+          onClick={loginWithGoogle}
+          >
             Login with Google
           </Button>
         </CardFooter>

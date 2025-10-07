@@ -19,8 +19,15 @@ import { AuthStore } from "../store/AuthStore";
 import { useAuthFunctions } from "@/store/AuthFunction";
 import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+const SETUP = import.meta.env.VITE_SETUP;
+const base_url = SETUP=="DEVELOPMENT"?import.meta.env.VITE_API_URL_LOCAL:import.meta.env.VITE_API_URL_PUBLIC;
 
 const SignUpPage = () => {
+
+  const signInWithGoogle = () => {
+    window.location.href = base_url + "/auth/google"; 
+  }
+
   const {signup}=useAuthFunctions()
   const {isSigningUp }=useRecoilValue(AuthStore)
   const [showPassword, setShowPassword] = useState(false);
@@ -203,8 +210,10 @@ const SignUpPage = () => {
               "Create Account"
             )}
           </Button>
-          <Button variant="outline" className="w-full shadow-md ">
-            Login with Google
+          <Button variant="outline" className="w-full shadow-md "
+          onClick={signInWithGoogle}
+          >
+            Continue with Google
           </Button>
         </CardFooter>
       </Card>
