@@ -1,5 +1,15 @@
-import React, { useEffect, useState , useRef } from "react";
-import Squares from "../blocks/Backgrounds/Squares/Squares";
+//logical imports
+import React, { useEffect, useState } from "react";
+
+//store imports
+import { useAuthStore } from "../store/AuthStore";
+import { useChatStore } from "../store/ChatStore";
+
+//pages imports
+import ChatList from "@/components/functional/ChatList";
+import UserList from "@/components/functional/UserList";
+
+//ui imports
 import {
   Card,
   CardAction,
@@ -9,37 +19,35 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRecoilValue, useSetRecoilState, useRecoilState } from "recoil";
-import { Loader2 } from "lucide-react";
-import { ChatStore } from "../store/ChatStore";
-import ChatList from "@/components/functional/ChatList";
-import UserList from "@/components/functional/UserList";
-import { AuthStore } from "@/store/AuthStore";
-import { io } from "socket.io-client";
-import toast from "react-hot-toast";
-import { useChatFunctions } from "../store/ChatFunctions.js";
-const SETUP = import.meta.env.VITE_SETUP;
-const BASE_URL = SETUP=="DEVELOPMENT"?import.meta.env.VITE_BASE_URL_LOCAL:import.meta.env.VITE_BASE_URL_PUBLIC;
-import { useNavigate } from "react-router-dom";
+import Squares from "../blocks/Backgrounds/Squares/Squares";
 
 
 const HomePage = () => {
-  const navigate = useNavigate();
-  const { people, isUsersLoading, selectedUser, onlineUsers } =
-    useRecoilValue(ChatStore);
-  const [{ authUser }, setUser] = useRecoilState(AuthStore);
-  const setChat = useSetRecoilState(ChatStore);
-  const [socket, setSocket] = useState(null);
+
+  const authUser = useAuthStore((state) => state.authUser);
+  const socket = useChatStore((state) => state.socket);
+  const selectedUser = useChatStore((state) => state.selectedUser);
+  const setSelectedUser = useChatStore((state) => state.setSelectedUser);
+  const setMessages = useChatStore((state) => state.setMessages);
+
+
+  const sendMessage = useChatStore((state) => state.sendMessage);
+
   const [messageToSend, setMessageToSend] = useState({
     text: "",
     image: "",
   });
 
-  const {sendMessage , getMessages , getUsers } = useChatFunctions();
-
   const handleSend = () => {
+    if (!socket) {
+      toast.error("Socket not connected");
+    }
+    if (!selectedUser) {
+      toast.error("Please select a user");
+    }
     if (messageToSend.text.trim() == "" && messageToSend.image.trim() == "") {
       toast.error("Message can't be empty");
     } else {
@@ -49,74 +57,19 @@ const HomePage = () => {
         image: messageToSend.image,
       });
     }
+
     setMessageToSend({
-      text:"",
-      image:"",
+      text: "",
+      image: "",
     });
   };
 
-  
   useEffect(() => {
-    if (!authUser?._id) return;
-    
-    console.log("creating socket...");
-    const newSocket = io(BASE_URL, {
-      transports: ["websocket"],
-      upgrade: false,
-      query: { userId: authUser._id },
-    });
-    
-    setSocket(newSocket);
-
-    console.log("useEffect running, authUser:", authUser);
-
-    if (authUser && socket && !socket.connected) {
-      console.log("connecting socket...");
-      socket.connect();
-      setUser((currentUser) => ({
-        ...currentUser,
-        socket,
-      }));
-    }
-
-    return () => {
-      console.log("cleaning up socket...");
-      newSocket.disconnect();
-      setChat((currentChat)=>({
-        ...currentChat,
-        socket:null,
-        onlineUsers:null,
-      }))
-    };
+    //console.log("react trying to render HomePage.jsx");
   }, []);
 
-
-  if (socket) {
-    socket.on("getOnlineUsers", (userIds) => {
-      setChat((currentChat) => ({
-        ...currentChat,
-        onlineUsers: userIds,
-      }));
-    });
-    console.log(onlineUsers);
-  }
-
-  if (socket && selectedUser) {
-    socket.on("newMessage", (newMessage) => {
-      setChat((currentChat) => {
-        const exists = currentChat.messages.some(
-          (msg) => msg._id === newMessage._id
-        );
-        if (exists) {
-          return currentChat;
-        }
-
-        return {
-          ...currentChat,
-          messages: [...currentChat.messages, newMessage],
-        };
-      });
-    });
+  if(!authUser?._id){
+    return <div>loading</div>;
   }
 
   return (
@@ -138,17 +91,25 @@ const HomePage = () => {
         />
       </div>
       <div className="grid grid-cols-1 z-10 relative lg:h-auto lg:w-auto lg:grid lg:grid-cols-[3fr_5fr] lg:gap-5">
-        <Card className={`${selectedUser?"hidden":""}  lg:block mt-18 ml-3 mr-3 h-[88vh]  lg:relative lg:mt-18.5 lg:ml-5 z-3 backdrop-blur-sm`}>
+        <Card
+          className={`${
+            selectedUser ? "hidden" : ""
+          }  lg:block mt-18 ml-3 mr-3 h-[88vh]  lg:relative lg:mt-18.5 lg:ml-5 z-3 backdrop-blur-sm`}
+        >
           <CardHeader>
             <CardTitle>Chat</CardTitle>
             <CardDescription>People</CardDescription>
           </CardHeader>
-          <CardContent className="h-max lg:h-[74vh] lg:mt-5 overflow-y-auto scrollbar-hide" >
+          <CardContent className="h-max lg:h-[74vh] lg:mt-5 overflow-y-auto scrollbar-hide">
             <UserList></UserList>
           </CardContent>
         </Card>
 
-        <Card className={`${selectedUser?"":"hidden"} lg:block mt-18 ml-3 mr-3 h-[88vh] lg-relative lg:h-[88vh] lg:mt-18.5 lg:mr-5 lg:z-3 backdrop-blur-sm`}>
+        <Card
+          className={`${
+            selectedUser ? "" : "hidden"
+          } lg:block mt-18 ml-3 mr-3 h-[88vh] lg-relative lg:h-[88vh] lg:mt-18.5 lg:mr-5 lg:z-3 backdrop-blur-sm`}
+        >
           {!selectedUser ? (
             <div></div>
           ) : (
@@ -156,12 +117,15 @@ const HomePage = () => {
               <CardHeader className="flex flex-row justify-between">
                 <CardTitle>{selectedUser.fullName}</CardTitle>
                 <CardDescription></CardDescription>
-                <Button className="self-end bg-red-500 hover:bg-red-700 text-white"
-                onClick={()=>setChat(currentChat=>({
-                  ...currentChat,
-                  selectedUser:null,
-                  messages:null,
-                }))}>X</Button>
+                <Button
+                  className="self-end bg-red-500 hover:bg-red-700 text-white"
+                  onClick={() =>{
+                    setSelectedUser(null)
+                    setMessages(null)
+                  }}
+                >
+                  X
+                </Button>
               </CardHeader>
               <CardContent className="grid grid-cols-1 overflow-y-auto scrollbar-hide h-[70vh] gap-5">
                 <ChatList></ChatList>

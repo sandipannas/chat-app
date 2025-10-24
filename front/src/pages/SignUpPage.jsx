@@ -1,5 +1,12 @@
-import React, { useState } from "react";
-import Squares from "../blocks/Backgrounds/Squares/Squares";
+//logical imports
+import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect  } from "react";
+
+//store
+import { useLoadingStage } from "../store/LoadingStage";
+import { useAuthFunctions } from "../store/AuthFunction";
+
+//ui components
 import {
   Card,
   CardAction,
@@ -9,27 +16,30 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { LuEye, LuEyeClosed } from "react-icons/lu";
-import { useRecoilValue } from "recoil";
-import { AuthStore } from "../store/AuthStore";
-import { useAuthFunctions } from "@/store/AuthFunction";
-import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-const SETUP = import.meta.env.VITE_SETUP;
-const base_url = SETUP=="DEVELOPMENT"?import.meta.env.VITE_API_URL_LOCAL:import.meta.env.VITE_API_URL_PUBLIC;
+import { Loader2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { LuEye, LuEyeClosed } from "react-icons/lu";
+import Squares from "../blocks/Backgrounds/Squares/Squares";
 
+//env variables
+const SETUP = import.meta.env.VITE_SETUP;
+const base_url =
+  SETUP == "DEVELOPMENT"
+    ? import.meta.env.VITE_API_URL_LOCAL
+    : import.meta.env.VITE_API_URL_PUBLIC;
+
+    
 const SignUpPage = () => {
 
-  const signInWithGoogle = () => {
-    window.location.href = base_url + "/auth/google"; 
-  }
+  const navigate = useNavigate();
 
-  const {signup}=useAuthFunctions()
-  const {isSigningUp }=useRecoilValue(AuthStore)
+  const { signup } = useAuthFunctions();
+  const isSigningUp = useLoadingStage((state) => state.isSigningUp);
+
+  //temporary state for form data
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -39,11 +49,12 @@ const SignUpPage = () => {
     profilePicture: "",
   });
 
-  const navigate = useNavigate();
+  const signInWithGoogle = () => {
+    window.location.href = base_url + "/auth/google";
+  };
   const handelLogInClick = () => {
     navigate("/login");
   };
-  
   const validateForm = () => {
     if (formData.fullName.trim() == "") {
       toast.error("Full Name required");
@@ -67,7 +78,6 @@ const SignUpPage = () => {
     }
     return true;
   };
-
   const handelSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -77,7 +87,12 @@ const SignUpPage = () => {
     }
   };
 
-  
+  useEffect(()=>{
+
+    //console.log("react trying to render SignUpPage.jsx");
+    
+  },[])
+
   return (
     <div className="h-screen flex justify-center relative">
       <div
@@ -210,8 +225,10 @@ const SignUpPage = () => {
               "Create Account"
             )}
           </Button>
-          <Button variant="outline" className="w-full shadow-md "
-          onClick={signInWithGoogle}
+          <Button
+            variant="outline"
+            className="w-full shadow-md "
+            onClick={signInWithGoogle}
           >
             Continue with Google
           </Button>

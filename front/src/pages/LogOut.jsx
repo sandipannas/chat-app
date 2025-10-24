@@ -9,6 +9,9 @@ const LogOut=()=>{
    const navigate=useNavigate()
 
    useEffect(()=>{
+
+   // console.log("react trying to render LogOut.jsx");
+   
     logout();
     navigate("/login")
    },[])

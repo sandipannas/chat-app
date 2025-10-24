@@ -1,26 +1,39 @@
-import React, { useEffect , useRef , useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+//logical imports
+import React, { useEffect , useRef } from "react";
+
+//store imports
+import { useChatStore } from "@/store/ChatStore";
+import { useLoadingStage } from "@/store/LoadingStage";
+
+//ui imports
 import { Loader2 } from "lucide-react";
-import { ChatStore } from "@/store/ChatStore";
-import { AuthStore, UserId } from "@/store/AuthStore";
-import { useChatFunctions } from "@/store/ChatFunctions";
+import { Button } from "@/components/ui/button";
 
 
 const ChatList = () => {
   
-  const { authUser } = useRecoilValue(AuthStore);
-  const { messages, isMessagesLoading, selectedUser} = useRecoilValue(ChatStore);
-  const { getMessages } = useChatFunctions();
+
+  const getMessages = useChatStore((state)=>state.getMessages);
+  const getNewMessages = useChatStore((state)=>state.getNewMessages);
+
+  const messages = useChatStore((state)=>state.messages);
+  const selectedUser = useChatStore((state)=>state.selectedUser);
+  const isMessagesLoading = useLoadingStage((state)=>state.isMessagesLoading);
+  
   const messagesEndRef = useRef(null);
   
   
   
   
   useEffect(() => {
+
+    //console.log("react trying to render ChatList.jsx");
+    
     if (selectedUser && selectedUser._id) {
       getMessages(selectedUser._id);
+      getNewMessages();
     }
+    
 
   }, [selectedUser]);
 
@@ -28,7 +41,7 @@ const ChatList = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages])
+  }, [selectedUser])
   
   
   if(isMessagesLoading){

@@ -1,5 +1,12 @@
-import React, { useState } from "react";
-import Squares from "../blocks/Backgrounds/Squares/Squares";
+//logical imports
+import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+
+//store imports
+import { useLoadingStage } from "@/store/LoadingStage";
+import { useAuthFunctions } from "@/store/AuthFunction";
+
+//ui imports
 import {
   Card,
   CardAction,
@@ -9,17 +16,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import { AuthStore } from "@/store/AuthStore";
-import { useAuthFunctions } from "@/store/AuthFunction";
-import { LuEye, LuEyeClosed } from "react-icons/lu";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { LuEye, LuEyeClosed } from "react-icons/lu";
+import Squares from "../blocks/Backgrounds/Squares/Squares";
 
+//env variables
 const SETUP = import.meta.env.VITE_SETUP;
 const base_url = SETUP=="DEVELOPMENT"?import.meta.env.VITE_API_URL_LOCAL:import.meta.env.VITE_API_URL_PUBLIC;
 
@@ -27,25 +32,24 @@ const base_url = SETUP=="DEVELOPMENT"?import.meta.env.VITE_API_URL_LOCAL:import.
 
 
 const LogInPage = () => {
-
-  const loginWithGoogle = () => {
-    window.location.href = base_url + "/auth/google"; 
-  }
-
-  const { login } = useAuthFunctions();
+  
   const navigate = useNavigate();
-  const handelSignUpClick = () => {
-    navigate("/signup");
-  };
-
-
-  const { isLogingIn } = useRecoilValue(AuthStore);
-
+  const { login } = useAuthFunctions();
   const [showPassword, setShowPassword] = useState(false);
+  const isLogingIn = useLoadingStage((state)=>state.isLogingIn);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  
+  const handelSignUpClick = () => {
+    navigate("/signup");
+  };
+  const loginWithGoogle = () => {
+    window.location.href = base_url + "/auth/google"; 
+  }
+  
 
   const validateForm = () => {
     if (formData.password == "") {
@@ -67,6 +71,14 @@ const LogInPage = () => {
       toast.error("Can't Login, try again");
     }
   };
+
+
+
+  useEffect(() => {
+
+    //console.log("react trying to render LogInPage.jsx");
+    
+  }, []);
 
   return (
     <div className="h-screen flex justify-center relative">

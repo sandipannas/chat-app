@@ -16,11 +16,11 @@ const GoogleCallback = () => {
       try {
         // try localStorage first
         localStorage.setItem("jwt", token);
-        console.log("Stored token in localStorage");
+        //console.log("Stored token in localStorage");
       } catch (e) {
         // fallback for Safari
         sessionStorage.setItem("jwt", token);
-        console.log("Stored token in sessionStorage (Safari fallback)");
+        //console.log("Stored token in sessionStorage (Safari fallback)");
       }
   
       // replace state to remove token from URL

@@ -1,24 +1,14 @@
-import { atom, useSetRecoilState , useRecoilState , selector , useRecoilValue} from "recoil";
+import { create } from "zustand";
 
 
+export const useAuthStore = create((set)=>({
+    authUser:null,
+    setAuthUser:(user)=>{
+      set(()=>({
+        authUser:user
+      }))
+    },
 
-export const AuthStore = atom({
-  key: "AuthStore",
-  default: {
-    authUser: null,
-    isSigningUp: false,
-    isLogingIn: false,
-    isUpdatingProfile: false,
-    isCheckingAuth: true,
-
-    socket:null,
     
-  },
-});
-
-export const UserId = atom({
-   key:"UserId",
-   default:""
-})
-
+}))
 

@@ -1,36 +1,60 @@
-import React, { useEffect, useState } from "react";
+//logical imports
+import React, { useEffect , useRef } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import SingUpPage from "./pages/SignUpPage";
-import LogInPage from "./pages/LogInPage";
-import ProfilePage from "./pages/ProfilePage";
+
+//page components
 import LogOut from "./pages/LogOut";
+import HomePage from "./pages/HomePage";
+import LogInPage from "./pages/LogInPage";
+import SingUpPage from "./pages/SignUpPage";
+import ProfilePage from "./pages/ProfilePage";
 import GoogleCallback from "./pages/GoogleCallback";
-import { AuthStore } from "./store/AuthStore";
-import { useAuthFunctions } from "./store/AuthFunction";
-import { useRecoilState } from "recoil";
-import { Toaster } from "react-hot-toast";
-import { Loader2 } from "lucide-react";
 import Navbar from "./components/functional/Navbar";
-import loading_cat from "./assets/loading_cat.gif";
+
+//store
+import { useChatStore } from "./store/ChatStore";
+import { useAuthStore } from "./store/AuthStore";
 import { useLoadingStage } from "./store/LoadingStage";
+import { useAuthFunctions } from "./store/AuthFunction";
+
+//ui components
+import { Loader2 } from "lucide-react";
+import { Toaster } from "react-hot-toast";
+import loading_cat from "./assets/loading_cat.gif";
+
+
 
 const App = () => {
   const { checkAuth } = useAuthFunctions();
-  const [{ authUser, isCheckingAuth }, setUser] = useRecoilState(AuthStore);
 
-  const isUpdatingName = useLoadingStage((state) => state.isUpdatingName);
-  const isUpdatingPassword = useLoadingStage(
-    (state) => state.isUpdatingPassword
-  );
+  const authUser = useAuthStore((state) => state.authUser);
+  const isCheckingAuth = useLoadingStage((state) => state.isCheckingAuth);
 
-  //at the start of the app check if the user is authenticated
+  const connectSocket = useChatStore((state) => state.connectSocket);
+  const disconnectSocket = useChatStore((state) => state.disconnectSocket);
+  const getOnlineUsers = useChatStore((state) => state.getOnlineUsers);
+
+
+
   useEffect(() => {
-    console.log("checking auth in the app jsx");
-    checkAuth();
-  }, []); // Remove authUser dependency to prevent infinite loops
 
-  if (isCheckingAuth && !authUser) {
+  //console.log("react trying to render App.jsx");
+  //console.log("checking if the user is already logged in");
+
+    if(authUser?._id){
+      connectSocket();
+      getOnlineUsers();
+    }
+    else{
+      //console.log("user is not logged in");
+      checkAuth();
+    }
+    return () => {
+      disconnectSocket();
+    };
+  }, [authUser]);
+
+  if (isCheckingAuth && !authUser?._id) {
     return (
       <div className="bg-[#fdfdfd] flex flex-col lg:flex lg:flex-row ">
         <div className="h-[50vh] flex flex-col justify-center items-center lg:flex lg:flex-row lg:justify-center lg:w-full  lg:h-screen">
@@ -47,7 +71,8 @@ const App = () => {
 
   return (
     <div>
-      {isUpdatingName || isUpdatingPassword ? <></> : <Navbar></Navbar>}
+      <Navbar></Navbar>
+
       <Routes>
         <Route path="/google/callback" element={<GoogleCallback />} />
         <Route

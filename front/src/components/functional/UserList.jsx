@@ -1,34 +1,51 @@
+//logical imports
 import React ,{useEffect }from "react";
-import { useRecoilState , useRecoilValue } from "recoil";
-import { useChatFunctions } from "@/store/ChatFunctions";
-import { ChatStore } from "@/store/ChatStore";
-import { Button } from "@/components/ui/button";
+
+//store imports
+import { useChatStore } from "@/store/ChatStore";
+import { useAuthStore } from "@/store/AuthStore";
+import { useLoadingStage } from "@/store/LoadingStage";
+
+//ui imports
 import { Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const UserList = () => {
-    const [{people , isUsersLoading , selectedUser} , setChat] = useRecoilState(ChatStore);
-    const { getUsers , getMessages } = useChatFunctions();
-    const {onlineUsers} = useRecoilValue(ChatStore);
-    const navigate = useNavigate();
 
-    useEffect(()=>{
-        console.log("useEffect running");
-        if(people == null){
-         getUsers();   
+    const authUser = useAuthStore((state)=>state.authUser);
+   
+    const people = useChatStore((state)=>state.people);
+    const setPeople = useChatStore((state)=>state.setPeople);
+    const getPeople = useChatStore((state)=>state.getPeople);
+
+    const messages = useChatStore((state)=>state.messages);
+
+    const isUsersLoading = useLoadingStage((state)=>state.isUsersLoading);
+    const setIsUsersLoading = useLoadingStage((state)=>state.setIsUsersLoading);
+
+    const selectedUser = useChatStore((state)=>state.selectedUser);
+    const setSelectedUser = useChatStore((state)=>state.setSelectedUser);
+
+    const onlineUsers = useChatStore((state)=>state.onlineUsers);
+
+    const getMessages = useChatStore((state)=>state.getMessages);
+
+
+
+    useEffect(() => {
+
+       // console.log("react trying to render UserList.jsx");
+       
+        if(!authUser?._id){
+            return;
         }
-        if(selectedUser && messages == null){
+        if (!people || people.length == null) {
+            getPeople();
+        }
+        if (selectedUser?._id && messages == null) {
             getMessages(selectedUser._id);
         }
-
-        return ()=>{
-         setChat({
-            selectedUser:null,
-            messages:null,
-            isUsersLoading:true,
-         });   
-        }
-    },[])
+    }, [people,onlineUsers,authUser])
 
 
     if(isUsersLoading){
@@ -43,32 +60,33 @@ const UserList = () => {
     
     return (
         <div className="flex flex-col content-start overflow-y-auto gap-3 scrollbar-hide">
-            {people && people.map((user)=>{
-
-
-
-                if(selectedUser && selectedUser._id==user._id){
-                    return(
-                        <Button className={`w-full h-15 bg-black/80 text-amber-300 scale-97 ${onlineUsers && onlineUsers.includes(user._id) ? "border-r-15 border-green-500" : "border-r-15 border-amber-300"}`} key={user._id}>{user.fullName}</Button>
-                    )
-                }
+            {Array.isArray(people) && people.length > 0 ? 
+            
+            people.map((user) => {
+                const isSelected = selectedUser?._id === user._id; //returns yes or no
+                const isOnline = onlineUsers?.includes(user._id); //return yes or no
                 
-
-                
-
-                return(<>
-                    <Button className={`w-full h-15 bg-gray-300 text-black backdrop-blur-sm ${onlineUsers && onlineUsers.includes(user._id) ? "border-r-15 border-green-500" : "border-r-15 border-amber-300"}`} key={user._id}
-                    onClick={()=>{
-                        setChat((currentChat)=>({
-                            ...currentChat,
-                            selectedUser:user,
-                        }))
-                        getMessages(user._id);
-                    }}>
+                return (
+                    <Button 
+                        key={user._id}
+                        className={`w-full h-15 ${isSelected ? 'bg-black/80 text-amber-300' : 'bg-gray-300 text-black'} ${isOnline ? 'border-r-15 border-green-500' : 'border-r-15 border-amber-300'}`}
+                        onClick={() => {
+                            if (!isSelected) {
+                                setSelectedUser(user);
+                                getMessages(user._id);
+                            }
+                        }}
+                    >
                         {user.fullName}
-                      </Button>
-                </>)
-            })}
+                    </Button>
+                );
+            }) 
+            : 
+            (
+                <div className="text-center p-4 text-gray-500">
+                    {isUsersLoading ? 'Loading users...' : 'No users found'}
+                </div>
+            )}
         </div>
     );
 };
