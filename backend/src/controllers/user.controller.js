@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import {generateJWT} from "../util/JWT.js"
-import cloudinary from "../config/cloudinary.js"
+import {uploadOnCloudinary} from "../util/cloudinary.js"
 import { sendLogInMail } from "../util/sendLogInMail.js";
 import dotenv from "dotenv"
 dotenv.config();
@@ -131,27 +131,49 @@ export const getCurrentUser = async (req, res) => {
 
 
 export const updateUserProfilePicture = async(req , res)=>{
-  const {newProfilePicture}=req.body;
-  const userId = req.user._id
-  try{
-      if(!newProfilePicture){
-        return res.status(400).json({
-            message:"new profile pic is required"
-        })
-      }
-      
-      const uploadResponse = await cloudinary.uploader.upload(newProfilePicture);
-      const updatedUser = await User.findByIdAndUpdate(userId,{profilePicture:uploadResponse.secure_url},{new:true}).select('-password');
+ // multer middleware will store the file in req.file.buffer
+ if (!req.file) {
+  return res.status(400).json({ message: "No file was uploaded." });
+ }
 
-      res.status(200).json(updatedUser);
+ let response;
 
+ try {
+
+  response = await uploadOnCloudinary(req.file.buffer,"profile_pictures"); //profile_pictures is the folder name
+
+  //saving the secure URL to the User model
+  const user = await User.findById(req.user._id);
+  user.profilePicture = response.secure_url;
+  await user.save();
+  
+  return res.status(201).json({
+   user:{id:user._id,
+    fullName:user.fullName,
+    email:user.email,
+    profilePicture: user.profilePicture
+   },
+    message:"Profile Picture Updated Successfully"
+  });
+ }
+
+ catch(error){
+  console.log("error occured while updating profile picture",error);
+
+   // If the upload succeeded but the DB save failed then delete the file in cloudinary
+   if (response) {
+    try {
+        // Cloudinary files are identified by their public_id
+        await cloudinary.uploader.destroy(response.public_id);
+    } catch (cleanupError) {
+        console.log("failed to clean up the cloudinary file", cleanupError);
+    }
   }
-  catch(err){
-    console.log("error occured while updating profile picture",err);
-    res.status(500).json({
-        message:"internal server error"
-    })
-  }
+
+  res.status(500).json({
+      message:"internal server error"
+  })
+ }
 };
 
 export const updateUserFullName = async(req,res)=>{

@@ -1,5 +1,6 @@
 import express from 'express';
 import passport from "../config/passport.js";
+import upload from "../middlewares/multer.middleware.js";
 
 import { 
     signup,
@@ -27,7 +28,7 @@ router.post("/login",login);
 
 router.post("/logout",logout);
 
-router.put("/updateUser/profilePicture",authJWT,updateUserProfilePicture);
+router.put("/updateUser/profilePicture",authJWT,upload.single("profilePicture"),updateUserProfilePicture);
 
 router.put("/updateUser/fullName",authJWT,updateUserFullName);
 

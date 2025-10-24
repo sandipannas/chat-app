@@ -14,8 +14,6 @@ export const getMessages = async(req,res)=>{
     })
     }
 
-   // console.log("Debug - getMessages:", { userId, otherUserId });
-
 const allMessage = await Message.find({
     $or:[
     {senderId:userId, receiverId:otherUserId},
@@ -56,9 +54,14 @@ export const sendMessage = async(req,res)=>{
             image : ""
         })
 
-        const receiverSocketId = getReceiverSocketId(receiverId);
+        const receiverSocketId = getReceiverSocketId(receiverId.toString());
+        console.log("receiverSocketId",receiverSocketId);
         if(receiverSocketId){ // checks if the user is online , then sent the msg in realtime
             io.to(receiverSocketId).emit("newMessage",response);
+            console.log("new message sent successfully",response)
+        }
+        else{
+            console.log("user is not online",receiverId);
         }
         
 
