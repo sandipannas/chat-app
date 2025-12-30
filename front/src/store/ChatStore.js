@@ -108,15 +108,12 @@ export const useChatStore = create((set,get) => ({
 
   messages:null,
   setMessages:(messages)=>set({messages}),
+
   appendMessage:(message)=>{
     const current = get().messages || []
-    if(current.length>0 && current[current.length-1]._id == message._id){
-      //console.log("message already exists");
-    }
-    else{
       set({messages:[...current,message]})
-    }
   },
+
   sendMessage: async (messageToSend) => {
 
     const appendMessage = get().appendMessage;
@@ -127,6 +124,7 @@ export const useChatStore = create((set,get) => ({
         "message/sendMessage",
         messageToSend
       );
+      
       
       appendMessage(messageToSend);
 
