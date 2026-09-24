@@ -23,17 +23,17 @@ export const useChatStore = create((set,get) => ({
 
   socket:null,
   setSocket:(socket)=>set({socket}),
+
+  //function to connect socket
   connectSocket:async()=>{
     
     const authUser = useAuthStore.getState().authUser;
 
     if(authUser?._id){
+      //user is already logged in
 
-      //console.log("---->user is already logged in");
-
-      if (!get().socket) {
-        //console.log("---->socket is not present");
-        //console.log("---->trying to create socket");
+      if (!get().socket) { //does the user already have a socket connection
+        //socket is not present and we will try to create a socket connection
   
         const connectedSocket= io(BASE_URL, {
           transports: ["websocket"],
@@ -41,48 +41,48 @@ export const useChatStore = create((set,get) => ({
           query: { userId: authUser._id },
         });
 
-        //console.log("does the socket going with id",authUser._id);
-        set({socket:connectedSocket});
+        set({socket:connectedSocket}); //set the socket int the store
 
-      } else {
-        //console.log("---->socket is already present ");
       }
-  }else{
-    //console.log("---->user is not logged in so the socket is not created");
-  }
+    }
   },
+
+  //function to disconnect socket
   disconnectSocket:async()=>{
     const socket = get().socket;
-    if(socket){
-      //console.log("disconnecting socket");
+
+    if(socket){  // if there is a socket connection then disconnect it
       socket.off("getOnlineUsers");
+      socket.off("newMessage");
       socket.disconnect();
       set({socket:null});
       set({onlineUsers:null});
     }
   },
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   people:null,
   setPeople:(people)=>set({people}),
+
+  //function to get all users that are registered in the app
   getPeople:async()=>{
 
     const setIsUsersLoading = useLoadingStage.getState().setIsUsersLoading;
-
-    setIsUsersLoading(true);
+    setIsUsersLoading(true); //loading till we fetch the users from the backend
 
     try {
-      //console.log("fetching all users...");
       const res = await axiosInstance.get("/auth/getAllUsers");
 
-      if (res.data) {
-        //console.log("all users fetched successfully");
+      if (res.data) { // if data is fetched or not
         set({people:res.data});
       } else {
         toast.error("error occured while fetching users");
       }
     } 
     catch (error) {
-      //console.log("error occured while fetching users", error);
+      //error occured while fetching users
       toast.error("Error occured while fetching users");
     }
     finally{
@@ -90,21 +90,29 @@ export const useChatStore = create((set,get) => ({
     }
   },
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   onlineUsers:null,
   setOnlineUsers:(onlineUsers)=>set({onlineUsers}),
+
+  //function to get all online users that are currently connected to the socket
   getOnlineUsers:async()=>{
-    const socket = get().socket;
+    const socket = get().socket; //get freshly created socket from the store
     if(socket){
-      //console.log("getting online users");
-      socket.on("getOnlineUsers",(userIds)=>{
-        //console.log("online users fetched successfully");
+      socket.off("getOnlineUsers");
+      socket.on("getOnlineUsers",(userIds)=>{ //getting online users
+        //it will return an array but we have to use the array in a function
         set({onlineUsers:userIds});
       });
     }
   },
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   selectedUser:null,
   setSelectedUser:(selectedUser)=>set({selectedUser}),
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   messages:null,
   setMessages:(messages)=>set({messages}),
@@ -142,17 +150,13 @@ export const useChatStore = create((set,get) => ({
     setIsMessagesLoading(true);
 
     try {
-      //console.log("fetching messages...");
-      //console.log("Debug - otherUserId:", otherUserId);
       const res = await axiosInstance.get(
         `message/getMessages?otherUserId=${otherUserId}`
       );
     
       get().setMessages(res.data);
-      //console.log("messages fetched successfully");
 
     } catch (error) {
-      //console.log("error occured while fetching messages", error);
       toast.error("error ocurred while fetching messages");
     }
     finally{
@@ -166,6 +170,7 @@ export const useChatStore = create((set,get) => ({
     if (socket && selectedUser) {
       //console.log("getting new messages");
 
+      socket.off("newMessage");
       socket.on("newMessage", (newMessage) => {
         //console.log("new message fetched successfully",newMessage);
         get().appendMessage(newMessage);
