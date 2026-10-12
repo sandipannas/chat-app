@@ -4,10 +4,12 @@ import React, { useEffect, useState } from "react";
 //store imports
 import { useAuthStore } from "../store/AuthStore";
 import { useChatStore } from "../store/ChatStore";
+import { useCallStore } from "../store/CallStore";
 
 //pages imports
 import ChatList from "@/components/functional/ChatList";
 import UserList from "@/components/functional/UserList";
+import VideoCall from "@/components/functional/VideoCall";
 
 //ui imports
 import {
@@ -22,6 +24,7 @@ import {
 import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Video } from "lucide-react";
 import Squares from "../blocks/Backgrounds/Squares/Squares";
 
 
@@ -35,6 +38,7 @@ const HomePage = () => {
 
 
   const sendMessage = useChatStore((state) => state.sendMessage);
+  const startCall = useCallStore((state) => state.startCall);
 
   const [messageToSend, setMessageToSend] = useState({
     text: "",
@@ -117,15 +121,29 @@ const HomePage = () => {
               <CardHeader className="flex flex-row justify-between">
                 <CardTitle>{selectedUser.fullName}</CardTitle>
                 <CardDescription></CardDescription>
-                <Button
-                  className="self-end bg-red-500 hover:bg-red-700 text-white"
-                  onClick={() =>{
-                    setSelectedUser(null)
-                    setMessages(null)
-                  }}
-                >
-                  X
-                </Button>
+                <div className="flex items-center gap-2 self-end">
+                  <Button
+                    className="bg-green-500 text-white hover:bg-green-700"
+                    title="Start video call"
+                    aria-label="Start video call"
+                    onClick={() =>
+                      startCall(selectedUser._id, selectedUser.fullName)
+                    }
+                  >
+                    <Video />
+                  </Button>
+                  <Button
+                    className="bg-red-500 text-white hover:bg-red-700"
+                    title="Close chat"
+                    aria-label="Close chat"
+                    onClick={() =>{
+                      setSelectedUser(null)
+                      setMessages(null)
+                    }}
+                  >
+                    X
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="grid grid-cols-1 overflow-y-auto scrollbar-hide h-[70vh] gap-5">
                 <ChatList></ChatList>
@@ -155,6 +173,7 @@ const HomePage = () => {
           )}
         </Card>
       </div>
+      <VideoCall />
     </div>
   );
 };

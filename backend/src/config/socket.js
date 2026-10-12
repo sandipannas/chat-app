@@ -17,6 +17,9 @@ const io = new Server(server,{
     }
 })
 
+//for storing online users map of userID=>socketId
+const userSocketMap= new Map();
+
 export function getReceiverSocketId(userId){
    if(userSocketMap.has(userId)){
     return userSocketMap.get(userId);
@@ -27,19 +30,47 @@ export function getReceiverSocketId(userId){
    }
 }
 
-//for sotring online users
-const userSocketMap= new Map();
+function emitToUser(userId, event, payload) {
+    const socketId = getReceiverSocketId(String(userId));
+
+    if (socketId) {
+        io.to(socketId).emit(event, payload);
+    }
+}
+
 
 
 io.on("connection", (socket)=>{
-    console.log("a user concected",socket.id);
-    console.log("the user id is",socket.handshake.query.userId);
-
     const userId=socket.handshake.query.userId;
-    if(userId) { userSocketMap.set(userId.toString(),socket.id)}
-    console.log("the user id after setting",userSocketMap);
+
+    if(userId){ 
+        userSocketMap.set(userId.toString(),socket.id)
+    }
 
     io.emit("getOnlineUsers",[...userSocketMap.keys()]);
+
+    socket.on("call:invite", ({ receiverId, callerName, callerPeerId }) => {
+        emitToUser(receiverId, "call:incoming", {
+            callerId: userId,
+            callerName,
+            callerPeerId,
+        });
+    });
+
+    socket.on("call:accept", ({ callerId, receiverPeerId }) => {
+        emitToUser(callerId, "call:accepted", {
+            receiverId: userId,
+            receiverPeerId,
+        });
+    });
+
+    socket.on("call:reject", ({ callerId }) => {
+        emitToUser(callerId, "call:rejected", { receiverId: userId });
+    });
+
+    socket.on("call:end", ({ otherUserId }) => {
+        emitToUser(otherUserId, "call:ended", { receiverId: userId });
+    });
 
     socket.on("disconnect",()=>{
         console.log("a user disconnected",socket.id)

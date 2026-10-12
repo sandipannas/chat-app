@@ -1,5 +1,5 @@
 //logical imports
-import React, { useEffect , useRef } from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 //page components
@@ -13,6 +13,7 @@ import Navbar from "./components/functional/Navbar";
 
 //store
 import { useChatStore } from "./store/ChatStore";
+import { useCallStore } from "./store/CallStore";
 import { useAuthStore } from "./store/AuthStore";
 import { useLoadingStage } from "./store/LoadingStage";
 import { useAuthFunctions } from "./store/AuthFunction";
@@ -33,26 +34,37 @@ const App = () => {
   const connectSocket = useChatStore((state) => state.connectSocket);
   const disconnectSocket = useChatStore((state) => state.disconnectSocket);
   const getOnlineUsers = useChatStore((state) => state.getOnlineUsers);
+  const initializeCallListeners = useCallStore((state) => state.initializeCallListeners);
 
 
 
   useEffect(() => {
 
-  //console.log("react trying to render App.jsx");
-  //console.log("checking if the user is already logged in");
+    //temporary cleanup function for call listeners, 
+    // will be replaced with actual cleanup function after initializing call listeners
+    let cleanupCallListeners = () => {};
 
     if(authUser?._id){
       connectSocket();
       getOnlineUsers();
+      cleanupCallListeners = initializeCallListeners();
     }
     else{
       //console.log("user is not logged in");
       checkAuth();
     }
     return () => {
+      cleanupCallListeners();
       disconnectSocket();
     };
-  }, [authUser]);
+  }, [
+    authUser,
+    checkAuth,
+    connectSocket,
+    disconnectSocket,
+    getOnlineUsers,
+    initializeCallListeners,
+  ]);
 
   if (isCheckingAuth && !authUser?._id) {
     return (
