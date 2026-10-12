@@ -66,15 +66,15 @@ const VideoCall = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-      <div className="relative flex h-full max-h-[800px] w-full max-w-5xl flex-col overflow-hidden rounded-lg bg-gray-950">
-        <div className="relative flex min-h-0 flex-1 items-center justify-center bg-gray-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="relative flex h-full max-h-[800px] w-full max-w-5xl flex-col overflow-hidden rounded-lg backdrop-blur-lg p-4 ">
+        <div className="relative flex min-h-0 flex-1 items-center justify-center rounded-lg">
           {remoteStream ? (
             <video
               ref={remoteVideoRef}
               autoPlay
               playsInline
-              className="h-full w-full object-contain"
+              className="max-h-full max-w-full object-contain rounded-lg"
             />
           ) : (
             <div className="text-center text-white">
@@ -96,7 +96,7 @@ const VideoCall = () => {
           />
         </div>
 
-        <div className="flex items-center justify-center gap-3 bg-gray-950 p-4">
+        <div className="flex items-center justify-center gap-3 p-4">
           <Button
             size="icon"
             variant="secondary"
